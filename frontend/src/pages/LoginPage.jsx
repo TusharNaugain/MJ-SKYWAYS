@@ -21,6 +21,13 @@ export default function LoginPage() {
   const [message, setMessage] = useState('');
   const navigate = useNavigate();
 
+  const getErrorMessage = (err, defaultMsg) => {
+    const dataErr = err.response?.data?.error;
+    if (typeof dataErr === 'string') return dataErr;
+    if (dataErr && typeof dataErr === 'object') return dataErr.message || dataErr.code || defaultMsg;
+    return err.message || defaultMsg;
+  };
+
   const inputStyle = {
     width: '100%', background: 'rgba(255,255,255,0.05)',
     border: '1px solid rgba(255,255,255,0.1)', color: '#fff',
@@ -54,7 +61,7 @@ export default function LoginPage() {
       window.dispatchEvent(new Event('storage'));
       navigate('/');
     } catch (err) {
-      setError(err.response?.data?.error || 'Invalid email or password.');
+      setError(getErrorMessage(err, 'Invalid email or password.'));
     } finally {
       setLoading(false);
     }
@@ -69,7 +76,7 @@ export default function LoginPage() {
       setMessage('A 6-digit verification code has been sent to your email.');
       setStep(2);
     } catch (err) {
-      setError(err.response?.data?.error || 'Failed to send OTP.');
+      setError(getErrorMessage(err, 'Failed to send OTP.'));
     } finally {
       setLoading(false);
     }
@@ -84,7 +91,7 @@ export default function LoginPage() {
       setMessage('Email verified. Set a password to finish creating your account.');
       setStep(3);
     } catch (err) {
-      setError(err.response?.data?.error || 'Invalid OTP.');
+      setError(getErrorMessage(err, 'Invalid OTP.'));
     } finally {
       setLoading(false);
     }
@@ -117,7 +124,7 @@ export default function LoginPage() {
       window.dispatchEvent(new Event('storage'));
       navigate('/');
     } catch (err) {
-      setError(err.response?.data?.error || 'Failed to create account.');
+      setError(getErrorMessage(err, 'Failed to create account.'));
     } finally {
       setLoading(false);
     }

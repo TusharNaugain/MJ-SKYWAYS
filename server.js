@@ -16,14 +16,17 @@ require('dotenv').config();
 // Initialize Firebase Admin
 let serviceAccount;
 try {
-  serviceAccount = require('./serviceAccountKey.json');
+  if (process.env.FIREBASE_SERVICE_ACCOUNT) {
+    serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
+  } else {
+    serviceAccount = require('./serviceAccountKey.json');
+  }
   admin.initializeApp({
     credential: admin.credential.cert(serviceAccount)
   });
   console.log('Firebase Admin initialized successfully.');
 } catch (e) {
-  console.error('Failed to initialize Firebase Admin. Missing or invalid serviceAccountKey.json', e.message);
-  process.exit(1);
+  console.error('Failed to initialize Firebase Admin:', e.message);
 }
 
 const db = admin.firestore();
