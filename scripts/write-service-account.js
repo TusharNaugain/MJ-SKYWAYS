@@ -1,7 +1,5 @@
 // Build-time helper: materialize serviceAccountKey.json from the
-// FIREBASE_SERVICE_ACCOUNT env var so server.js can require() it as before.
-// Skips silently when the env var isn't set (e.g. local dev where the file
-// already exists on disk).
+// FIREBASE_SERVICE_ACCOUNT_BASE64 env var so server.js can require() it.
 const fs = require('fs');
 const path = require('path');
 
@@ -12,18 +10,18 @@ if (fs.existsSync(target)) {
   process.exit(0);
 }
 
-const raw = process.env.FIREBASE_SERVICE_ACCOUNT;
-if (!raw) {
-  console.warn('[write-service-account] FIREBASE_SERVICE_ACCOUNT env var is empty — Firebase Admin will fail to initialise.');
+const b64 = process.env.FIREBASE_SERVICE_ACCOUNT_BASE64;
+if (!b64) {
+  console.warn('[write-service-account] FIREBASE_SERVICE_ACCOUNT_BASE64 env var is empty.');
   process.exit(0);
 }
 
 try {
-  // Validate it parses as JSON before writing.
-  JSON.parse(raw);
+  const raw = Buffer.from(b64, 'base64').toString('utf8');
+  JSON.parse(raw); // validate
   fs.writeFileSync(target, raw, { encoding: 'utf8' });
-  console.log('[write-service-account] Wrote serviceAccountKey.json from FIREBASE_SERVICE_ACCOUNT.');
+  console.log('[write-service-account] Wrote serviceAccountKey.json from Base64.');
 } catch (e) {
-  console.error('[write-service-account] FIREBASE_SERVICE_ACCOUNT is not valid JSON:', e.message);
+  console.error('[write-service-account] Failed to parse and write service account:', e.message);
   process.exit(1);
 }
