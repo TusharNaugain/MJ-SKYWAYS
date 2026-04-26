@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "buildCommand": "node ./scripts/write-service-account.js && cd frontend && npm install && npm run build",
+  "buildCommand": "node ./scripts/write-service-account.js && cd frontend && npm install --include=dev && npm run build",
   "outputDirectory": "frontend/dist",
   "installCommand": "npm install",
   "framework": null,
