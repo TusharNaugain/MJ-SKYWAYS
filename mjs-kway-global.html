@@ -1,0 +1,1280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MJS Kway Global — Connecting the World</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,300;1,600&family=DM+Sans:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<style>
+/* ─── TOKENS ─────────────────────────────────────────── */
+:root{
+  --navy:#07111f;--navy-mid:#0c1d34;--navy-card:#0f2340;
+  --gold:#c9a96e;--gold-light:#e8c98a;--gold-dim:rgba(201,169,110,.18);
+  --slate:#7e98b8;--white:#eef2f8;
+  --glass:rgba(255,255,255,.03);--gb:rgba(201,169,110,.18);
+  --ff-display:'Cormorant Garamond',serif;
+  --ff-body:'DM Sans',sans-serif;--ff-mono:'Space Mono',monospace;
+  --ease:cubic-bezier(.23,1,.32,1);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--navy);color:var(--white);font-family:var(--ff-body);overflow-x:hidden;cursor:none}
+::-webkit-scrollbar{width:3px}::-webkit-scrollbar-track{background:var(--navy)}::-webkit-scrollbar-thumb{background:var(--gold);border-radius:2px}
+
+/* ─── CURSOR ─────────────────────────────────────────── */
+#cur{width:10px;height:10px;background:var(--gold);border-radius:50%;position:fixed;pointer-events:none;z-index:9999;transform:translate(-50%,-50%);transition:width .2s,height .2s,background .2s;mix-blend-mode:difference}
+#cur-r{width:34px;height:34px;border:1.5px solid var(--gold);border-radius:50%;position:fixed;pointer-events:none;z-index:9998;transform:translate(-50%,-50%);transition:width .25s,height .25s;opacity:.55}
+body *:hover~#cur,a:hover~#cur,button:hover~#cur{width:18px;height:18px}
+
+/* ─── LOADER ─────────────────────────────────────────── */
+#loader{position:fixed;inset:0;background:var(--navy);z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1.6rem;transition:opacity .9s,visibility .9s}
+#loader.out{opacity:0;visibility:hidden}
+.ld-logo{font-family:var(--ff-display);font-size:2.8rem;font-weight:700;letter-spacing:.04em}
+.ld-logo span{color:var(--gold)}
+.ld-bar{width:220px;height:1px;background:rgba(255,255,255,.08);overflow:hidden;border-radius:1px}
+.ld-fill{height:100%;background:var(--gold);animation:ldBar 1.8s var(--ease) forwards}
+@keyframes ldBar{from{width:0}to{width:100%}}
+.ld-text{font-family:var(--ff-mono);font-size:.65rem;letter-spacing:.3em;color:var(--slate);text-transform:uppercase;animation:blink 1s infinite}
+@keyframes blink{0%,100%{opacity:.4}50%{opacity:1}}
+
+/* ─── NAV ─────────────────────────────────────────────── */
+nav{position:fixed;top:0;left:0;right:0;z-index:1000;padding:1.3rem 3.5rem;display:flex;align-items:center;justify-content:space-between;backdrop-filter:blur(24px);background:rgba(7,17,31,.7);border-bottom:1px solid rgba(201,169,110,.1);transition:padding .3s,background .3s}
+nav.scrolled{padding:.85rem 3.5rem;background:rgba(7,17,31,.95)}
+.logo{font-family:var(--ff-display);font-size:1.65rem;font-weight:700;color:var(--white);text-decoration:none;letter-spacing:.02em}
+.logo span{color:var(--gold)}
+.nav-links{display:flex;gap:2.6rem;list-style:none;align-items:center}
+.nav-links a{color:var(--slate);text-decoration:none;font-size:.77rem;font-weight:500;letter-spacing:.14em;text-transform:uppercase;transition:color .2s;position:relative}
+.nav-links a::after{content:'';position:absolute;bottom:-5px;left:0;right:0;height:1px;background:var(--gold);transform:scaleX(0);transition:transform .3s}
+.nav-links a:hover{color:var(--gold)}
+.nav-links a:hover::after{transform:scaleX(1)}
+.btn-portal{background:transparent;border:1px solid var(--gold);color:var(--gold);padding:.48rem 1.3rem;border-radius:2px;font-size:.75rem;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;font-family:var(--ff-body);font-weight:500;transition:all .2s}
+.btn-portal:hover{background:var(--gold);color:var(--navy)}
+.hamburger{display:none;flex-direction:column;gap:5px;cursor:pointer;padding:4px}
+.hamburger span{display:block;width:24px;height:1.5px;background:var(--gold);transition:all .3s}
+.hamburger.open span:nth-child(1){transform:rotate(45deg) translate(4px,4px)}
+.hamburger.open span:nth-child(2){opacity:0}
+.hamburger.open span:nth-child(3){transform:rotate(-45deg) translate(4px,-4px)}
+
+/* ─── MOBILE NAV ─────────────────────────────────────── */
+.mob-nav{position:fixed;inset:0;background:rgba(7,17,31,.97);backdrop-filter:blur(20px);z-index:999;display:flex;align-items:center;justify-content:center;transform:translateX(100%);transition:transform .45s var(--ease)}
+.mob-nav.open{transform:translateX(0)}
+.mob-nav ul{list-style:none;text-align:center;display:flex;flex-direction:column;gap:2.5rem}
+.mob-nav ul li a{font-family:var(--ff-display);font-size:2.4rem;font-weight:300;color:var(--white);text-decoration:none;transition:color .2s}
+.mob-nav ul li a:hover{color:var(--gold)}
+
+/* ─── HERO ────────────────────────────────────────────── */
+#hero{height:100vh;position:relative;display:flex;align-items:center;justify-content:center;overflow:hidden}
+#hero-canvas{position:absolute;inset:0;z-index:0}
+.hero-ov{position:absolute;inset:0;background:radial-gradient(ellipse at 35% 50%,rgba(12,29,52,.2),rgba(7,17,31,.82) 65%);z-index:1}
+.hero-c{position:relative;z-index:2;text-align:center;max-width:960px;padding:0 2rem}
+.hero-eyebrow{font-family:var(--ff-mono);font-size:.68rem;letter-spacing:.38em;color:var(--gold);text-transform:uppercase;margin-bottom:1.6rem;opacity:0;animation:fuv .8s .3s forwards}
+.hero-h{font-family:var(--ff-display);font-size:clamp(3.2rem,7.5vw,7rem);font-weight:300;line-height:1.04;margin-bottom:1.8rem;opacity:0;animation:fuv .9s .5s forwards}
+.hero-h em{font-style:italic;color:var(--gold);font-weight:600}
+.hero-sub{font-size:1.05rem;color:var(--slate);max-width:560px;margin:0 auto 3rem;line-height:1.8;font-weight:300;opacity:0;animation:fuv 1s .7s forwards}
+.hero-btns{display:flex;gap:1.2rem;justify-content:center;flex-wrap:wrap;opacity:0;animation:fuv 1s .9s forwards}
+.btn-p{background:var(--gold);color:var(--navy);padding:.92rem 2.5rem;border:none;font-family:var(--ff-body);font-size:.83rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;cursor:pointer;border-radius:2px;text-decoration:none;display:inline-block;transition:all .25s}
+.btn-p:hover{background:var(--gold-light);transform:translateY(-3px);box-shadow:0 10px 36px rgba(201,169,110,.35)}
+.btn-o{background:transparent;color:var(--white);padding:.92rem 2.5rem;border:1px solid rgba(238,242,248,.25);font-family:var(--ff-body);font-size:.83rem;font-weight:400;letter-spacing:.12em;text-transform:uppercase;cursor:pointer;border-radius:2px;text-decoration:none;display:inline-block;transition:all .25s}
+.btn-o:hover{border-color:var(--gold);color:var(--gold);transform:translateY(-3px)}
+.hero-stats{position:absolute;bottom:3rem;left:0;right:0;z-index:2;display:flex;justify-content:center;gap:4.5rem;flex-wrap:wrap;padding:0 2rem;opacity:0;animation:fuv 1s 1.1s forwards}
+.stat-n{font-family:var(--ff-display);font-size:2.4rem;font-weight:700;color:var(--gold);line-height:1}
+.stat-l{font-size:.68rem;color:var(--slate);letter-spacing:.18em;text-transform:uppercase;margin-top:.3rem}
+.scroll-ind{position:absolute;bottom:1.2rem;left:50%;transform:translateX(-50%);z-index:2;display:flex;flex-direction:column;align-items:center;gap:.5rem}
+.scroll-line{width:1px;height:48px;background:linear-gradient(to bottom,var(--gold),transparent);animation:sp 2s infinite}
+@keyframes sp{0%,100%{opacity:.3}50%{opacity:1}}
+@keyframes fuv{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
+
+/* ─── SECTIONS ────────────────────────────────────────── */
+section{padding:8rem 0;position:relative}
+.container{max-width:1320px;margin:0 auto;padding:0 3.5rem}
+.s-label{font-family:var(--ff-mono);font-size:.65rem;letter-spacing:.38em;color:var(--gold);text-transform:uppercase;margin-bottom:.9rem}
+.s-title{font-family:var(--ff-display);font-size:clamp(2.3rem,4.5vw,3.8rem);font-weight:300;line-height:1.12;margin-bottom:1.4rem}
+.s-title strong{font-weight:700}
+.divider{width:56px;height:2px;background:linear-gradient(to right,var(--gold),transparent);margin-bottom:3.5rem}
+.center-head{text-align:center}.center-head .divider{margin:0 auto 3.5rem}
+
+/* ─── REVEAL ──────────────────────────────────────────── */
+.rv{opacity:0;transform:translateY(32px);transition:opacity .75s var(--ease),transform .75s var(--ease)}
+.rv.vis{opacity:1;transform:translateY(0)}
+
+/* ─── ABOUT ───────────────────────────────────────────── */
+#about{background:var(--navy)}
+.about-g{display:grid;grid-template-columns:1fr 1fr;gap:5rem;align-items:center}
+#about-canvas{width:100%;height:480px;border-radius:4px}
+.vm-cards{display:flex;flex-direction:column;gap:1.8rem}
+.vm-card{background:var(--glass);border:1px solid var(--gb);border-radius:3px;padding:2.2rem;position:relative;overflow:hidden;transition:transform .3s var(--ease),border-color .3s}
+.vm-card::before{content:'';position:absolute;top:0;left:0;width:3px;height:100%;background:linear-gradient(to bottom,var(--gold),var(--gold-dim))}
+.vm-card:hover{transform:translateX(10px);border-color:rgba(201,169,110,.45)}
+.vm-badge{font-family:var(--ff-mono);font-size:.6rem;letter-spacing:.3em;color:var(--gold);text-transform:uppercase;margin-bottom:.8rem}
+.vm-card h3{font-family:var(--ff-display);font-size:1.65rem;font-weight:600;margin-bottom:.7rem}
+.vm-card p{color:var(--slate);font-size:.9rem;line-height:1.85;font-weight:300}
+
+/* ─── VALUES ──────────────────────────────────────────── */
+#values{background:linear-gradient(180deg,var(--navy) 0%,var(--navy-mid) 100%)}
+.val-g{display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem}
+.val-card{background:var(--glass);border:1px solid var(--gb);border-radius:3px;padding:2.4rem;transition:all .4s var(--ease);position:relative;overflow:hidden;cursor:default}
+.val-card::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(201,169,110,.06),transparent);opacity:0;transition:opacity .4s}
+.val-card:hover{transform:translateY(-10px);border-color:rgba(201,169,110,.55);box-shadow:0 24px 70px rgba(0,0,0,.45)}
+.val-card:hover::after{opacity:1}
+.val-icon{width:52px;height:52px;background:linear-gradient(135deg,rgba(201,169,110,.15),rgba(201,169,110,.04));border:1px solid rgba(201,169,110,.28);border-radius:3px;display:flex;align-items:center;justify-content:center;margin-bottom:1.5rem;font-size:1.45rem}
+.val-card h3{font-family:var(--ff-display);font-size:1.4rem;font-weight:600;margin-bottom:.65rem}
+.val-card p{color:var(--slate);font-size:.85rem;line-height:1.8;font-weight:300}
+.val-full{grid-column:span 3}
+.val-full .val-inner{display:flex;gap:1.5rem;align-items:flex-start}
+
+/* ─── SERVICES ────────────────────────────────────────── */
+#services{background:var(--navy-mid)}
+.svc-g{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:2rem}
+.svc-card{background:rgba(7,17,31,.55);border:1px solid var(--gb);border-radius:3px;padding:2.6rem;transition:all .4s var(--ease);position:relative;overflow:hidden}
+.svc-card::before{content:'';position:absolute;bottom:0;left:0;right:0;height:3px;background:linear-gradient(to right,var(--gold),transparent);transform:scaleX(0);transform-origin:left;transition:transform .4s}
+.svc-card:hover::before{transform:scaleX(1)}
+.svc-card:hover{transform:translateY(-8px);box-shadow:0 28px 70px rgba(0,0,0,.55);border-color:rgba(201,169,110,.4)}
+.svc-num{font-family:var(--ff-mono);font-size:.62rem;color:var(--gold);letter-spacing:.22em;margin-bottom:1.6rem;opacity:.65}
+.svc-icon{font-size:2.3rem;margin-bottom:1.2rem;display:block}
+.svc-card h3{font-family:var(--ff-display);font-size:1.55rem;font-weight:600;margin-bottom:.8rem}
+.svc-card p{color:var(--slate);font-size:.875rem;line-height:1.82;font-weight:300}
+.svc-link{display:inline-flex;align-items:center;gap:.5rem;margin-top:1.5rem;color:var(--gold);font-size:.76rem;letter-spacing:.14em;text-transform:uppercase;text-decoration:none;font-weight:500;transition:gap .2s}
+.svc-link:hover{gap:.9rem}
+
+/* ─── WHY ─────────────────────────────────────────────── */
+#why{background:var(--navy)}
+.why-g{display:grid;grid-template-columns:1fr 1fr;gap:5.5rem;align-items:center}
+#why-canvas{width:100%;height:460px}
+.why-items{display:flex;flex-direction:column;gap:1.8rem}
+.why-item{display:flex;gap:1.6rem;align-items:flex-start;padding:1.6rem;background:var(--glass);border:1px solid var(--gb);border-radius:3px;transition:all .3s}
+.why-item:hover{border-color:rgba(201,169,110,.5);transform:translateX(8px)}
+.why-n{font-family:var(--ff-display);font-size:3.2rem;font-weight:700;color:var(--gold);opacity:.2;line-height:1;min-width:2.8rem}
+.why-item h3{font-family:var(--ff-display);font-size:1.4rem;font-weight:600;margin-bottom:.45rem}
+.why-item p{color:var(--slate);font-size:.875rem;line-height:1.78;font-weight:300}
+
+/* ─── LEADERSHIP ──────────────────────────────────────── */
+#leadership{background:var(--navy-mid)}
+.team-g{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:2rem}
+.team-card{background:rgba(7,17,31,.55);border:1px solid var(--gb);border-radius:3px;overflow:hidden;transition:all .4s var(--ease)}
+.team-card:hover{transform:translateY(-10px);box-shadow:0 30px 80px rgba(0,0,0,.55);border-color:rgba(201,169,110,.45)}
+.team-photo{width:100%;aspect-ratio:1;background:linear-gradient(135deg,var(--navy-card),var(--navy-mid));display:flex;align-items:center;justify-content:center;font-size:4.5rem;position:relative;overflow:hidden}
+.team-photo::after{content:'';position:absolute;inset:0;background:linear-gradient(to bottom,transparent 55%,rgba(7,17,31,.5))}
+.team-info{padding:1.7rem}
+.team-info h3{font-family:var(--ff-display);font-size:1.35rem;font-weight:600;margin-bottom:.28rem}
+.team-role{font-size:.68rem;color:var(--gold);letter-spacing:.18em;text-transform:uppercase;margin-bottom:.8rem;font-weight:500}
+.team-info p{color:var(--slate);font-size:.82rem;line-height:1.75;font-weight:300}
+
+/* ─── NETWORK ─────────────────────────────────────────── */
+#network{background:var(--navy);overflow:hidden}
+#map-canvas{width:100%;height:540px;display:block}
+.regions-g{display:grid;grid-template-columns:repeat(auto-fit,minmax(175px,1fr));gap:1rem;margin-top:2.5rem}
+.reg-chip{background:var(--glass);border:1px solid var(--gb);border-radius:2px;padding:1rem 1.3rem;display:flex;align-items:center;gap:.85rem;transition:all .3s}
+.reg-chip:hover{border-color:var(--gold);background:rgba(201,169,110,.04)}
+.reg-dot{width:7px;height:7px;border-radius:50%;background:var(--gold);flex-shrink:0;animation:dot-pulse 2.4s infinite}
+@keyframes dot-pulse{0%,100%{box-shadow:0 0 0 0 rgba(201,169,110,.5)}50%{box-shadow:0 0 0 6px rgba(201,169,110,0)}}
+.reg-name{font-size:.82rem;font-weight:500}
+
+/* ─── FUTURE ──────────────────────────────────────────── */
+#future{background:linear-gradient(135deg,var(--navy-mid),var(--navy-card));position:relative}
+#future-canvas{position:absolute;inset:0;opacity:.35;pointer-events:none}
+.future-c{position:relative;z-index:1}
+.goals-g{display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:1.6rem;margin-top:3.5rem}
+.goal-card{background:rgba(7,17,31,.72);border:1px solid var(--gb);border-radius:3px;padding:2.2rem;backdrop-filter:blur(12px);transition:all .4s var(--ease)}
+.goal-card:hover{transform:translateY(-8px);border-color:rgba(201,169,110,.5)}
+.goal-yr{font-family:var(--ff-display);font-size:2.2rem;font-weight:700;color:var(--gold);opacity:.35;line-height:1;margin-bottom:.8rem}
+.goal-card h3{font-family:var(--ff-display);font-size:1.35rem;font-weight:600;margin-bottom:.6rem}
+.goal-card p{color:var(--slate);font-size:.855rem;line-height:1.78;font-weight:300}
+
+/* ─── CONTACT ─────────────────────────────────────────── */
+#contact{background:var(--navy-mid)}
+.contact-g{display:grid;grid-template-columns:1fr 1.45fr;gap:4.5rem;align-items:start}
+.contact-info{display:flex;flex-direction:column;gap:1.4rem}
+.ci{display:flex;gap:1.1rem;align-items:flex-start;padding:1.5rem;background:var(--glass);border:1px solid var(--gb);border-radius:3px;transition:all .3s}
+.ci:hover{border-color:rgba(201,169,110,.4)}
+.ci-icon{font-size:1.5rem;min-width:2rem}
+.ci h4{font-size:.68rem;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);margin-bottom:.3rem;font-weight:500}
+.ci p{color:var(--slate);font-size:.875rem;line-height:1.65}
+.cf{background:var(--glass);border:1px solid var(--gb);border-radius:3px;padding:2.8rem}
+.cf h3{font-family:var(--ff-display);font-size:1.7rem;font-weight:600;margin-bottom:1.8rem}
+.f-row{display:grid;grid-template-columns:1fr 1fr;gap:1.1rem}
+.fg{display:flex;flex-direction:column;gap:.48rem;margin-bottom:1.1rem}
+.fg label{font-size:.66rem;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);font-weight:500}
+.fg input,.fg textarea,.fg select{background:rgba(7,17,31,.6);border:1px solid rgba(126,152,184,.2);border-radius:2px;padding:.88rem 1rem;color:var(--white);font-family:var(--ff-body);font-size:.875rem;outline:none;transition:border-color .2s;width:100%}
+.fg input:focus,.fg textarea:focus,.fg select:focus{border-color:var(--gold)}
+.fg textarea{resize:vertical;min-height:118px}
+.fg select option{background:var(--navy-mid)}
+.btn-submit{width:100%;background:var(--gold);color:var(--navy);border:none;padding:1.05rem 2rem;font-family:var(--ff-body);font-size:.83rem;font-weight:600;letter-spacing:.14em;text-transform:uppercase;cursor:pointer;border-radius:2px;transition:all .25s}
+.btn-submit:hover{background:var(--gold-light);transform:translateY(-2px);box-shadow:0 10px 34px rgba(201,169,110,.3)}
+.btn-submit:disabled{opacity:.6;cursor:not-allowed;transform:none}
+.f-msg{margin-top:1rem;padding:.85rem 1.1rem;border-radius:2px;font-size:.84rem;display:none}
+.f-msg.ok{background:rgba(72,199,142,.08);border:1px solid rgba(72,199,142,.3);color:#48c78e;display:block}
+.f-msg.err{background:rgba(255,90,90,.08);border:1px solid rgba(255,90,90,.3);color:#ff5a5a;display:block}
+
+/* ─── FOOTER ──────────────────────────────────────────── */
+footer{background:var(--navy);border-top:1px solid var(--gb);padding:3.5rem 0 2rem}
+.ft-g{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:3.5rem;margin-bottom:3rem}
+.ft-brand .logo{display:block;margin-bottom:1rem}
+.ft-brand p{color:var(--slate);font-size:.84rem;line-height:1.75;font-weight:300;max-width:265px}
+.ft-col h4{font-size:.67rem;letter-spacing:.28em;text-transform:uppercase;color:var(--gold);margin-bottom:1.2rem;font-weight:500}
+.ft-col ul{list-style:none;display:flex;flex-direction:column;gap:.75rem}
+.ft-col ul li a{color:var(--slate);text-decoration:none;font-size:.84rem;transition:color .2s}
+.ft-col ul li a:hover{color:var(--gold)}
+.ft-bottom{border-top:1px solid var(--gb);padding-top:1.5rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem}
+.ft-bottom p{color:var(--slate);font-size:.78rem}
+
+/* ─── AUTH MODAL ──────────────────────────────────────── */
+.modal-ov{position:fixed;inset:0;background:rgba(7,17,31,.92);backdrop-filter:blur(14px);z-index:2000;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .3s;padding:1rem}
+.modal-ov.open{opacity:1;pointer-events:all}
+.modal{background:var(--navy-mid);border:1px solid var(--gb);border-radius:5px;padding:2.8rem;width:100%;max-width:430px;position:relative;transform:translateY(24px) scale(.97);transition:transform .35s var(--ease)}
+.modal-ov.open .modal{transform:translateY(0) scale(1)}
+.modal-x{position:absolute;top:1rem;right:1rem;background:none;border:none;color:var(--slate);cursor:pointer;font-size:1.3rem;padding:.3rem;transition:color .2s;line-height:1}
+.modal-x:hover{color:var(--gold)}
+.modal h2{font-family:var(--ff-display);font-size:2.1rem;font-weight:600;margin-bottom:.35rem}
+.modal>p{color:var(--slate);font-size:.85rem;margin-bottom:1.8rem}
+.m-tabs{display:flex;gap:0;margin-bottom:2rem;border:1px solid var(--gb);border-radius:2px;overflow:hidden}
+.m-tab{flex:1;padding:.72rem;text-align:center;font-size:.74rem;letter-spacing:.14em;text-transform:uppercase;cursor:pointer;transition:all .2s;color:var(--slate);font-weight:500;background:transparent;border:none;font-family:var(--ff-body)}
+.m-tab.active{background:var(--gold);color:var(--navy)}
+.auth-form{display:flex;flex-direction:column;gap:.9rem}
+.auth-form .fg{margin-bottom:0}
+.auth-div{text-align:center;color:var(--slate);font-size:.76rem;margin:.25rem 0}
+.btn-full{width:100%}
+.user-bar{display:flex;align-items:center;gap:.65rem;font-size:.76rem;color:var(--gold)}
+.u-av{width:30px;height:30px;background:var(--gold);border-radius:50%;display:flex;align-items:center;justify-content:center;color:var(--navy);font-weight:700;font-size:.75rem;flex-shrink:0}
+
+/* ─── ADMIN DASHBOARD ─────────────────────────────────── */
+.dash-ov{position:fixed;inset:0;background:rgba(7,17,31,.96);z-index:3000;overflow-y:auto;opacity:0;pointer-events:none;transition:opacity .3s}
+.dash-ov.open{opacity:1;pointer-events:all}
+.dash{max-width:1200px;margin:0 auto;padding:2.5rem 2rem}
+.dash-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:2.5rem;flex-wrap:wrap;gap:1rem}
+.dash-header h1{font-family:var(--ff-display);font-size:2.4rem;font-weight:600}
+.dash-header h1 span{color:var(--gold)}
+.dash-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1.2rem;margin-bottom:2.5rem}
+.ds-card{background:var(--glass);border:1px solid var(--gb);border-radius:3px;padding:1.6rem}
+.ds-num{font-family:var(--ff-display);font-size:2.6rem;font-weight:700;color:var(--gold);line-height:1}
+.ds-label{font-size:.7rem;color:var(--slate);letter-spacing:.18em;text-transform:uppercase;margin-top:.4rem}
+.dash-tabs{display:flex;gap:0;border:1px solid var(--gb);border-radius:2px;overflow:hidden;margin-bottom:1.8rem;width:fit-content}
+.dash-tab{padding:.6rem 1.5rem;font-size:.74rem;letter-spacing:.12em;text-transform:uppercase;cursor:pointer;transition:all .2s;color:var(--slate);background:transparent;border:none;font-family:var(--ff-body);font-weight:500}
+.dash-tab.active{background:var(--gold);color:var(--navy)}
+.dash-table{width:100%;border-collapse:collapse;font-size:.84rem}
+.dash-table th{text-align:left;padding:.9rem 1rem;font-size:.67rem;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);border-bottom:1px solid var(--gb);font-weight:500}
+.dash-table td{padding:.9rem 1rem;border-bottom:1px solid rgba(201,169,110,.07);color:var(--slate);vertical-align:middle}
+.dash-table tr:hover td{background:rgba(201,169,110,.03)}
+.badge{display:inline-block;padding:.25rem .65rem;border-radius:20px;font-size:.66rem;letter-spacing:.1em;text-transform:uppercase;font-weight:600}
+.badge-green{background:rgba(72,199,142,.12);color:#48c78e;border:1px solid rgba(72,199,142,.25)}
+.badge-red{background:rgba(255,90,90,.12);color:#ff5a5a;border:1px solid rgba(255,90,90,.25)}
+.badge-gold{background:rgba(201,169,110,.12);color:var(--gold);border:1px solid rgba(201,169,110,.25)}
+.badge-slate{background:rgba(126,152,184,.12);color:var(--slate);border:1px solid rgba(126,152,184,.25)}
+.btn-sm{padding:.32rem .75rem;font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;border-radius:2px;cursor:pointer;font-family:var(--ff-body);font-weight:500;transition:all .2s;border:1px solid var(--gb);background:transparent;color:var(--slate)}
+.btn-sm:hover{border-color:var(--gold);color:var(--gold)}
+.dash-empty{text-align:center;padding:3rem;color:var(--slate);font-size:.9rem}
+
+/* ─── TOAST ───────────────────────────────────────────── */
+.toast{position:fixed;bottom:2rem;right:2rem;background:var(--navy-mid);border:1px solid var(--gb);border-left:3px solid var(--gold);padding:1.05rem 1.5rem;border-radius:3px;font-size:.84rem;z-index:9999;transform:translateX(130%);transition:transform .35s var(--ease);max-width:330px;pointer-events:none}
+.toast.show{transform:translateX(0)}
+.toast.ok{border-left-color:#48c78e}
+.toast.err{border-left-color:#ff5a5a}
+
+/* ─── RESPONSIVE ──────────────────────────────────────── */
+@media(max-width:1024px){
+  .about-g,.why-g{grid-template-columns:1fr}
+  #about-canvas{height:360px}
+  .contact-g{grid-template-columns:1fr}
+  .ft-g{grid-template-columns:1fr 1fr}
+}
+@media(max-width:768px){
+  nav{padding:1rem 1.5rem}
+  nav.scrolled{padding:.75rem 1.5rem}
+  .nav-links{display:none}
+  .hamburger{display:flex}
+  .container{padding:0 1.5rem}
+  section{padding:5.5rem 0}
+  .val-g{grid-template-columns:1fr 1fr}
+  .val-full{grid-column:span 2}
+  .f-row{grid-template-columns:1fr}
+  .ft-g{grid-template-columns:1fr}
+  .hero-stats{gap:2rem}
+  .dash{padding:1.5rem 1rem}
+}
+@media(max-width:540px){
+  .val-g{grid-template-columns:1fr}
+  .val-full{grid-column:span 1}
+  .val-full .val-inner{flex-direction:column}
+  .team-g{grid-template-columns:1fr 1fr}
+  .hero-h{font-size:2.8rem}
+}
+</style>
+</head>
+<body>
+
+<!-- CURSOR -->
+<div id="cur"></div><div id="cur-r"></div>
+
+<!-- LOADER -->
+<div id="loader">
+  <div class="ld-logo">MJS <span>Kway</span> Global</div>
+  <div class="ld-bar"><div class="ld-fill"></div></div>
+  <div class="ld-text">Initializing Systems…</div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<!-- ADMIN DASHBOARD -->
+<div class="dash-ov" id="dashOv">
+  <div class="dash">
+    <div class="dash-header">
+      <div>
+        <div class="s-label">Admin Panel</div>
+        <h1>MJS <span>Kway</span> Dashboard</h1>
+      </div>
+      <div style="display:flex;gap:.8rem;flex-wrap:wrap">
+        <button class="btn-portal" onclick="closeDash()">← Back to Site</button>
+        <button class="btn-portal" onclick="handleLogout()">Sign Out</button>
+      </div>
+    </div>
+    <div class="dash-stats" id="dashStats"></div>
+    <div class="dash-tabs">
+      <button class="dash-tab active" onclick="switchDashTab('users',this)">Users</button>
+      <button class="dash-tab" onclick="switchDashTab('contacts',this)">Inquiries</button>
+    </div>
+    <div id="dashContent"></div>
+  </div>
+</div>
+
+<!-- AUTH MODAL -->
+<div class="modal-ov" id="authModal">
+  <div class="modal">
+    <button class="modal-x" onclick="closeModal()">✕</button>
+    <h2 id="mTitle">Welcome Back</h2>
+    <p id="mSub">Sign in to your MJS Kway Global account</p>
+    <div class="m-tabs">
+      <button class="m-tab active" id="tabLogin" onclick="switchTab('login')">Sign In</button>
+      <button class="m-tab" id="tabReg" onclick="switchTab('register')">Register</button>
+    </div>
+    <!-- LOGIN -->
+    <div id="fLogin" class="auth-form">
+      <div class="fg"><label>Email</label><input type="email" id="lEmail" placeholder="your@email.com" autocomplete="email"></div>
+      <div class="fg"><label>Password</label><input type="password" id="lPass" placeholder="••••••••" autocomplete="current-password"></div>
+      <button class="btn-p btn-full" onclick="handleLogin()">Sign In</button>
+      <div class="auth-div">— or browse as guest —</div>
+      <button class="btn-o btn-full" onclick="closeModal()">Continue Browsing</button>
+    </div>
+    <!-- REGISTER -->
+    <div id="fReg" class="auth-form" style="display:none">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:.8rem">
+        <div class="fg"><label>First Name</label><input type="text" id="rFirst" placeholder="John"></div>
+        <div class="fg"><label>Last Name</label><input type="text" id="rLast" placeholder="Doe"></div>
+      </div>
+      <div class="fg"><label>Email</label><input type="email" id="rEmail" placeholder="john@company.com" autocomplete="email"></div>
+      <div class="fg"><label>Password</label><input type="password" id="rPass" placeholder="Min 8 chars, 1 uppercase, 1 number" autocomplete="new-password"></div>
+      <div class="fg"><label>Company</label><input type="text" id="rCompany" placeholder="Your Company Name"></div>
+      <div class="fg"><label>Phone</label><input type="tel" id="rPhone" placeholder="+91 00000 00000"></div>
+      <button class="btn-p btn-full" onclick="handleRegister()">Create Account</button>
+    </div>
+  </div>
+</div>
+
+<!-- MOBILE NAV -->
+<div class="mob-nav" id="mobNav">
+  <ul>
+    <li><a href="#about" onclick="closeMob()">About</a></li>
+    <li><a href="#values" onclick="closeMob()">Values</a></li>
+    <li><a href="#services" onclick="closeMob()">Services</a></li>
+    <li><a href="#why" onclick="closeMob()">Why Us</a></li>
+    <li><a href="#leadership" onclick="closeMob()">Leadership</a></li>
+    <li><a href="#network" onclick="closeMob()">Network</a></li>
+    <li><a href="#contact" onclick="closeMob()">Contact</a></li>
+  </ul>
+</div>
+
+<!-- NAV -->
+<nav id="nav">
+  <a href="#hero" class="logo">MJS <span>Kway</span> Global</a>
+  <ul class="nav-links">
+    <li><a href="#about">About</a></li>
+    <li><a href="#values">Values</a></li>
+    <li><a href="#services">Services</a></li>
+    <li><a href="#why">Why Us</a></li>
+    <li><a href="#leadership">Leadership</a></li>
+    <li><a href="#network">Network</a></li>
+    <li><a href="#contact">Contact</a></li>
+    <li id="authSlot"><button class="btn-portal" onclick="openModal()">Client Portal</button></li>
+  </ul>
+  <div class="hamburger" id="hbg" onclick="toggleMob()"><span></span><span></span><span></span></div>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <canvas id="hero-canvas"></canvas>
+  <div class="hero-ov"></div>
+  <div class="hero-c">
+    <p class="hero-eyebrow">Global · Reliable · Innovative</p>
+    <h1 class="hero-h">Connecting <em>Worlds</em><br>Through Excellence</h1>
+    <p class="hero-sub">MJS Kway Global delivers end-to-end solutions across logistics, aviation, hospitality and international trade — bridging continents with precision and trust.</p>
+    <div class="hero-btns">
+      <a href="#services" class="btn-p">Explore Services</a>
+      <a href="#contact" class="btn-o">Get in Touch</a>
+    </div>
+  </div>
+  <div class="hero-stats">
+    <div><div class="stat-n" data-target="5">0</div><div class="stat-l">Industries</div></div>
+    <div><div class="stat-n" data-target="30" data-suffix="+">0</div><div class="stat-l">Countries</div></div>
+    <div><div class="stat-n" data-target="100" data-suffix="%">0</div><div class="stat-l">Client Focus</div></div>
+    <div><div class="stat-n" data-raw="24/7">24/7</div><div class="stat-l">Operations</div></div>
+  </div>
+  <div class="scroll-ind"><div class="scroll-line"></div></div>
+</section>
+
+<!-- ABOUT -->
+<section id="about">
+  <div class="container">
+    <div class="about-g">
+      <canvas id="about-canvas"></canvas>
+      <div>
+        <p class="s-label rv">About MJS Kway Global</p>
+        <h2 class="s-title rv"><strong>Built on Trust.</strong><br>Driven by Innovation.</h2>
+        <div class="divider rv"></div>
+        <div class="vm-cards">
+          <div class="vm-card rv">
+            <div class="vm-badge">Our Vision</div>
+            <h3>Global Leadership</h3>
+            <p>To become a globally trusted leader in logistics, aviation support, hospitality and PSU as well as international trade by connecting businesses across borders with speed, reliability, and innovation.</p>
+          </div>
+          <div class="vm-card rv">
+            <div class="vm-badge">Our Mission</div>
+            <h3>Operational Excellence</h3>
+            <p>Our mission is to deliver efficient, secure, and customer-focused solutions that empower businesses seamlessly across the world while maintaining the highest standards of professionalism, integrity, and operational excellence.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- VALUES -->
+<section id="values">
+  <div class="container">
+    <div class="center-head">
+      <p class="s-label rv">What We Stand For</p>
+      <h2 class="s-title rv">Our <strong>Core Values</strong></h2>
+      <div class="divider rv"></div>
+    </div>
+    <div class="val-g">
+      <div class="val-card rv"><div class="val-icon">⚖️</div><h3>Integrity</h3><p>We conduct our business with honesty, transparency, and strong ethical standards in every relationship.</p></div>
+      <div class="val-card rv"><div class="val-icon">🛡️</div><h3>Reliability</h3><p>We are committed to delivering consistent, dependable, and timely services that our customers can trust.</p></div>
+      <div class="val-card rv"><div class="val-icon">🤝</div><h3>Customer Commitment</h3><p>Our customers are at the center of everything we do, and we strive to exceed their expectations.</p></div>
+      <div class="val-card rv"><div class="val-icon">💡</div><h3>Innovation</h3><p>We continuously improve our processes and adopt modern technologies to provide smarter logistics solutions.</p></div>
+      <div class="val-card rv"><div class="val-icon">🌐</div><h3>Global Excellence</h3><p>We aim to meet international standards in quality, efficiency, and service delivery.</p></div>
+      <div class="val-card rv"><div class="val-icon">🧑‍🤝‍🧑</div><h3>Teamwork</h3><p>We believe strong collaboration and respect among our people drive success and growth.</p></div>
+      <div class="val-card val-full rv"><div class="val-inner"><div class="val-icon" style="flex-shrink:0">🌿</div><div><h3>Sustainability</h3><p>We operate responsibly, focusing on long-term growth that benefits society, the environment, and our stakeholders.</p></div></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- SERVICES -->
+<section id="services">
+  <div class="container">
+    <p class="s-label rv">What We Offer</p>
+    <h2 class="s-title rv">Our <strong>Core Services</strong></h2>
+    <div class="divider rv"></div>
+    <div class="svc-g">
+      <div class="svc-card rv"><div class="svc-num">01 / 05</div><span class="svc-icon">🚚</span><h3>Logistics</h3><p>End-to-end supply chain management and freight solutions — from warehousing and last-mile delivery to customs clearance and multimodal transport across global corridors.</p><a href="#contact" class="svc-link">Inquire Now →</a></div>
+      <div class="svc-card rv"><div class="svc-num">02 / 05</div><span class="svc-icon">✈️</span><h3>Aviation Support</h3><p>Comprehensive ground handling, aviation fuel procurement, aircraft maintenance coordination, and crew logistics support for commercial and charter airline operations worldwide.</p><a href="#contact" class="svc-link">Inquire Now →</a></div>
+      <div class="svc-card rv"><div class="svc-num">03 / 05</div><span class="svc-icon">🏨</span><h3>Hospitality</h3><p>Premium hospitality management and consulting including hotel operations, event management, catering coordination, and end-to-end travel logistics for corporate clients.</p><a href="#contact" class="svc-link">Inquire Now →</a></div>
+      <div class="svc-card rv"><div class="svc-num">04 / 05</div><span class="svc-icon">🏛️</span><h3>PSU Services</h3><p>Specialized procurement, supply chain, and operational support services tailored for Public Sector Undertakings — ensuring compliance, efficiency, and cost-effective delivery.</p><a href="#contact" class="svc-link">Inquire Now →</a></div>
+      <div class="svc-card rv"><div class="svc-num">05 / 05</div><span class="svc-icon">🌍</span><h3>International Trade</h3><p>Strategic import/export facilitation, trade finance advisory, regulatory compliance, and market entry support for businesses expanding across international borders.</p><a href="#contact" class="svc-link">Inquire Now →</a></div>
+    </div>
+  </div>
+</section>
+
+<!-- WHY -->
+<section id="why">
+  <div class="container">
+    <div class="why-g">
+      <div>
+        <p class="s-label rv">Why MJS Kway Global</p>
+        <h2 class="s-title rv">The <strong>Difference</strong><br>is in the Detail</h2>
+        <div class="divider rv"></div>
+        <div class="why-items">
+          <div class="why-item rv"><div class="why-n">01</div><div><h3>Speed &amp; Agility</h3><p>Streamlined operations and global partnerships ensure rapid response times, real-time tracking, and on-time delivery across all verticals — every time.</p></div></div>
+          <div class="why-item rv"><div class="why-n">02</div><div><h3>Proven Reliability</h3><p>Built on operational excellence — consistent, dependable results backed by rigorous quality standards and transparent communication at every step.</p></div></div>
+          <div class="why-item rv"><div class="why-n">03</div><div><h3>Global Network</h3><p>Our network spans 30+ countries across Asia, Europe, the Middle East and beyond — giving your business a truly worldwide reach with local expertise.</p></div></div>
+          <div class="why-item rv"><div class="why-n">04</div><div><h3>Technology-Driven</h3><p>From AI-powered logistics management to real-time cargo visibility platforms, we leverage cutting-edge technology to deliver smarter, faster solutions.</p></div></div>
+        </div>
+      </div>
+      <canvas id="why-canvas" class="rv"></canvas>
+    </div>
+  </div>
+</section>
+
+<!-- LEADERSHIP -->
+<section id="leadership">
+  <div class="container">
+    <div class="center-head">
+      <p class="s-label rv">The People Behind the Vision</p>
+      <h2 class="s-title rv">Our <strong>Leadership</strong> Team</h2>
+      <div class="divider rv"></div>
+    </div>
+    <div class="team-g">
+      <div class="team-card rv"><div class="team-photo">👔</div><div class="team-info"><h3>Rajesh Kumar Sharma</h3><div class="team-role">Founder &amp; Chairman</div><p>A visionary with 25+ years in global logistics and trade, Rajesh founded MJS Kway Global with a mission to connect India to the world with speed and integrity.</p></div></div>
+      <div class="team-card rv"><div class="team-photo">👩‍💼</div><div class="team-info"><h3>Priya Mehta</h3><div class="team-role">Managing Director &amp; CEO</div><p>IIM alumna with two decades in aviation and hospitality, Priya drives strategic growth and ensures world-class service delivery across all verticals.</p></div></div>
+      <div class="team-card rv"><div class="team-photo">👨‍✈️</div><div class="team-info"><h3>Capt. Anil Singh</h3><div class="team-role">Director — Aviation Ops</div><p>Former commercial pilot turned executive, Capt. Anil brings unmatched expertise in ground handling, compliance, and airline partnership management.</p></div></div>
+      <div class="team-card rv"><div class="team-photo">🌐</div><div class="team-info"><h3>Michael T. Chen</h3><div class="team-role">Director — Int'l Trade</div><p>Deep expertise in Asian and European markets. Michael leads cross-border trade facilitation, ensuring seamless compliance and strategic market entries.</p></div></div>
+      <div class="team-card rv"><div class="team-photo">📊</div><div class="team-info"><h3>Sunita Bose</h3><div class="team-role">CFO &amp; Finance Director</div><p>Seasoned financial leader specializing in trade finance and international treasury management, safeguarding the company's fiscal health and investor relations.</p></div></div>
+      <div class="team-card rv"><div class="team-photo">⚙️</div><div class="team-info"><h3>Vikram Nair</h3><div class="team-role">Director — Technology</div><p>IIT alumnus and logistics tech veteran, Vikram leads digital transformation with AI-driven platforms to optimize operations across all global corridors.</p></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- NETWORK -->
+<section id="network">
+  <div class="container">
+    <p class="s-label rv">Our Footprint</p>
+    <h2 class="s-title rv">Global <strong>Network</strong> &amp; Markets</h2>
+    <div class="divider rv"></div>
+    <canvas id="map-canvas"></canvas>
+    <div class="regions-g">
+      <div class="reg-chip rv"><div class="reg-dot"></div><div class="reg-name">South Asia</div></div>
+      <div class="reg-chip rv"><div class="reg-dot"></div><div class="reg-name">Middle East &amp; GCC</div></div>
+      <div class="reg-chip rv"><div class="reg-dot"></div><div class="reg-name">Southeast Asia</div></div>
+      <div class="reg-chip rv"><div class="reg-dot"></div><div class="reg-name">East Asia &amp; China</div></div>
+      <div class="reg-chip rv"><div class="reg-dot"></div><div class="reg-name">Europe</div></div>
+      <div class="reg-chip rv"><div class="reg-dot"></div><div class="reg-name">North America</div></div>
+      <div class="reg-chip rv"><div class="reg-dot"></div><div class="reg-name">Africa</div></div>
+      <div class="reg-chip rv"><div class="reg-dot"></div><div class="reg-name">CIS &amp; Central Asia</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- FUTURE -->
+<section id="future">
+  <canvas id="future-canvas"></canvas>
+  <div class="container future-c">
+    <div class="center-head">
+      <p class="s-label rv">Looking Forward</p>
+      <h2 class="s-title rv">Future <strong>Vision</strong> &amp; Milestones</h2>
+      <div class="divider rv"></div>
+    </div>
+    <div class="goals-g">
+      <div class="goal-card rv"><div class="goal-yr">2025</div><h3>Digital Transformation</h3><p>Launching our proprietary logistics management platform with AI-powered route optimization, real-time tracking, and automated customs documentation across all trade corridors.</p></div>
+      <div class="goal-card rv"><div class="goal-yr">2026</div><h3>Global Hub Expansion</h3><p>Establishing operational hubs in Dubai, Singapore, and Frankfurt to strengthen our aviation support and international trade capabilities in key global gateway markets.</p></div>
+      <div class="goal-card rv"><div class="goal-yr">2027</div><h3>Sustainable Operations</h3><p>Achieving carbon-neutral logistics operations through green fleet adoption, renewable energy partnerships, and sustainable packaging initiatives across all service lines.</p></div>
+      <div class="goal-card rv"><div class="goal-yr">2028</div><h3>Industry Leadership</h3><p>Becoming the recognized leader in integrated logistics and aviation support across South Asia and the GCC, managing a portfolio exceeding $500M in annual trade volume.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section id="contact">
+  <div class="container">
+    <p class="s-label rv">Get in Touch</p>
+    <h2 class="s-title rv">Contact <strong>Us</strong></h2>
+    <div class="divider rv"></div>
+    <div class="contact-g">
+      <div class="contact-info">
+        <div class="ci rv"><div class="ci-icon">📧</div><div><h4>Email</h4><p>Info@mjskwayglobal.com</p></div></div>
+        <div class="ci rv"><div class="ci-icon">📞</div><div><h4>Phone</h4><p>+91 9870311988</p></div></div>
+        <div class="ci rv"><div class="ci-icon">🏢</div><div><h4>Headquarters</h4><p>India — Serving Global Markets<br>Available 24/7 for international clients</p></div></div>
+        <div class="ci rv"><div class="ci-icon">🕐</div><div><h4>Business Hours</h4><p>Mon – Sat: 9:00 AM – 7:00 PM IST<br>Emergency line available 24/7</p></div></div>
+      </div>
+      <div class="cf rv">
+        <h3>Send a Message</h3>
+        <div class="f-row">
+          <div class="fg"><label>First Name *</label><input type="text" id="cf-first" placeholder="John"></div>
+          <div class="fg"><label>Last Name *</label><input type="text" id="cf-last" placeholder="Doe"></div>
+        </div>
+        <div class="fg"><label>Email Address *</label><input type="email" id="cf-email" placeholder="john@company.com"></div>
+        <div class="fg"><label>Phone Number</label><input type="tel" id="cf-phone" placeholder="+91 00000 00000"></div>
+        <div class="fg"><label>Service of Interest</label>
+          <select id="cf-service">
+            <option value="">Select a service…</option>
+            <option>Logistics</option><option>Aviation Support</option>
+            <option>Hospitality</option><option>PSU Services</option>
+            <option>International Trade</option><option>General Inquiry</option>
+          </select>
+        </div>
+        <div class="fg"><label>Message *</label><textarea id="cf-msg" placeholder="Tell us about your requirements…"></textarea></div>
+        <button class="btn-submit" id="cf-btn" onclick="submitContact()">Send Message</button>
+        <div class="f-msg" id="cf-res"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="container">
+    <div class="ft-g">
+      <div class="ft-brand">
+        <a href="#hero" class="logo">MJS <span>Kway</span> Global</a>
+        <p>A globally trusted partner across logistics, aviation, hospitality, and international trade — delivering excellence across every border.</p>
+      </div>
+      <div class="ft-col"><h4>Services</h4><ul><li><a href="#services">Logistics</a></li><li><a href="#services">Aviation Support</a></li><li><a href="#services">Hospitality</a></li><li><a href="#services">PSU Services</a></li><li><a href="#services">International Trade</a></li></ul></div>
+      <div class="ft-col"><h4>Company</h4><ul><li><a href="#about">About Us</a></li><li><a href="#values">Core Values</a></li><li><a href="#leadership">Leadership</a></li><li><a href="#network">Global Network</a></li><li><a href="#future">Future Goals</a></li></ul></div>
+      <div class="ft-col"><h4>Contact</h4><ul><li><a href="mailto:Info@mjskwayglobal.com">Info@mjskwayglobal.com</a></li><li><a href="tel:+919870311988">+91 9870311988</a></li><li><a href="#contact">Send a Message</a></li></ul></div>
+    </div>
+    <div class="ft-bottom">
+      <p>© 2025 MJS Kway Global. All rights reserved.</p>
+      <p style="color:var(--slate)">Connecting Businesses Across Borders</p>
+    </div>
+  </div>
+</footer>
+
+<script>
+'use strict';
+/* ═══════════════════════════════════════════════
+   BACKEND — in-browser persistence (IndexedDB)
+   Full auth: register, login, JWT-style tokens,
+   role-based access, admin dashboard, contacts
+═══════════════════════════════════════════════ */
+
+/* ── Tiny JWT-like token (base64 payload + HMAC-ish sig) ── */
+const TOKEN_SECRET = 'mjs_kway_2025_' + navigator.userAgent.length;
+function b64(str){ try{ return btoa(unescape(encodeURIComponent(JSON.stringify(str)))) }catch(e){ return btoa(JSON.stringify(str)) } }
+function ub64(str){ try{ return JSON.parse(decodeURIComponent(escape(atob(str)))) }catch(e){ return null } }
+function sign(payload){ const p=b64(payload); const s=b64({h:TOKEN_SECRET.split('').reduce((a,c)=>a+c.charCodeAt(0),0)+p.length}); return p+'.'+s; }
+function verify(token){ if(!token)return null; const[p,s]=token.split('.'); if(!p||!s)return null; const pl=ub64(p); if(!pl)return null; if(pl.exp&&Date.now()>pl.exp)return null; return pl; }
+function makeToken(user,mins=15){ return sign({id:user.id,email:user.email,role:user.role,name:user.firstName,exp:Date.now()+mins*60000}); }
+
+/* ── Storage helpers ── */
+const S = {
+  get:(k)=>{ try{ return JSON.parse(localStorage.getItem(k)) }catch(e){ return null } },
+  set:(k,v)=>localStorage.setItem(k,JSON.stringify(v)),
+  del:(k)=>localStorage.removeItem(k),
+};
+
+/* ── DB ── */
+const DB = {
+  users(){ return S.get('mjs_users')||[]; },
+  saveUsers(u){ S.set('mjs_users',u); },
+  contacts(){ return S.get('mjs_contacts')||[]; },
+  saveContacts(c){ S.set('mjs_contacts',c); },
+  session(){ return S.get('mjs_session'); },
+  saveSession(s){ S.set('mjs_session',s); },
+  clearSession(){ S.del('mjs_session'); S.del('mjs_refresh'); },
+  saveRefresh(t){ S.set('mjs_refresh',t); },
+  getRefresh(){ return S.get('mjs_refresh'); },
+};
+
+/* ── Seed admin if not exists ── */
+(function seedAdmin(){
+  const users = DB.users();
+  if(!users.find(u=>u.email==='admin@mjskwayglobal.com')){
+    users.unshift({
+      id:'admin_001',firstName:'Admin',lastName:'User',
+      email:'admin@mjskwayglobal.com',
+      password: hashPassword('Admin@123'),
+      company:'MJS Kway Global',phone:'+91 9870311988',
+      role:'admin',isActive:true,
+      createdAt:new Date().toISOString(),lastLogin:null
+    });
+    DB.saveUsers(users);
+  }
+})();
+
+function hashPassword(pass){
+  let h=0x811c9dc5;
+  for(let i=0;i<pass.length;i++){ h^=pass.charCodeAt(i); h=(h*0x01000193)>>>0; }
+  return '0x'+h.toString(16).padStart(8,'0')+'_'+pass.length;
+}
+function checkPassword(pass,hash){ return hashPassword(pass)===hash; }
+function genId(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,7); }
+function sanitize(u){ const{password,...r}=u; return r; }
+
+/* ── Auth API ── */
+const Auth = {
+  register({firstName,lastName,email,password,company,phone}){
+    if(!firstName||!lastName||!email||!password) return {error:'All required fields must be filled.'};
+    if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return {error:'Invalid email address.'};
+    if(password.length<8) return {error:'Password must be at least 8 characters.'};
+    if(!/[A-Z]/.test(password)||!/\d/.test(password)) return {error:'Password needs an uppercase letter and a number.'};
+    const users=DB.users();
+    if(users.find(u=>u.email.toLowerCase()===email.toLowerCase())) return {error:'An account with this email already exists.'};
+    const user={id:genId(),firstName:firstName.trim(),lastName:lastName.trim(),email:email.toLowerCase().trim(),password:hashPassword(password),company:company||'',phone:phone||'',role:'client',isActive:true,createdAt:new Date().toISOString(),lastLogin:null};
+    users.push(user);
+    DB.saveUsers(users);
+    const access=makeToken(user,60);
+    const refresh=makeToken(user,10080);
+    DB.saveSession(sanitize(user));
+    DB.saveRefresh(refresh);
+    return {user:sanitize(user),access,refresh};
+  },
+  login({email,password}){
+    if(!email||!password) return {error:'Email and password required.'};
+    const users=DB.users();
+    const user=users.find(u=>u.email.toLowerCase()===email.toLowerCase());
+    if(!user) return {error:'Invalid credentials.'};
+    if(!user.isActive) return {error:'Account deactivated. Contact support.'};
+    if(!checkPassword(password,user.password)) return {error:'Invalid credentials.'};
+    user.lastLogin=new Date().toISOString();
+    DB.saveUsers(users);
+    const access=makeToken(user,60);
+    const refresh=makeToken(user,10080);
+    DB.saveSession(sanitize(user));
+    DB.saveRefresh(refresh);
+    return {user:sanitize(user),access,refresh};
+  },
+  logout(){ DB.clearSession(); },
+  me(){ return DB.session(); },
+  updateProfile({firstName,lastName,company,phone}){
+    const sess=DB.session(); if(!sess) return {error:'Not authenticated.'};
+    const users=DB.users();
+    const idx=users.findIndex(u=>u.id===sess.id);
+    if(idx===-1) return {error:'User not found.'};
+    if(firstName) users[idx].firstName=firstName.trim();
+    if(lastName) users[idx].lastName=lastName.trim();
+    if(company!==undefined) users[idx].company=company.trim();
+    if(phone!==undefined) users[idx].phone=phone.trim();
+    DB.saveUsers(users);
+    DB.saveSession(sanitize(users[idx]));
+    return {user:sanitize(users[idx])};
+  },
+  changePassword({currentPassword,newPassword}){
+    const sess=DB.session(); if(!sess) return {error:'Not authenticated.'};
+    if(newPassword.length<8) return {error:'New password must be at least 8 characters.'};
+    const users=DB.users();
+    const user=users.find(u=>u.id===sess.id);
+    if(!checkPassword(currentPassword,user.password)) return {error:'Current password is incorrect.'};
+    user.password=hashPassword(newPassword);
+    DB.saveUsers(users);
+    return {success:true};
+  },
+  toggleUser(id){
+    const sess=DB.session(); if(sess?.role!=='admin') return {error:'Admins only.'};
+    const users=DB.users();
+    const user=users.find(u=>u.id===id);
+    if(!user) return {error:'User not found.'};
+    user.isActive=!user.isActive;
+    DB.saveUsers(users);
+    return {user:sanitize(user)};
+  },
+  deleteUser(id){
+    const sess=DB.session(); if(sess?.role!=='admin') return {error:'Admins only.'};
+    if(id==='admin_001') return {error:'Cannot delete admin.'};
+    let users=DB.users();
+    users=users.filter(u=>u.id!==id);
+    DB.saveUsers(users);
+    return {success:true};
+  }
+};
+
+const ContactAPI = {
+  submit(data){
+    const {firstName,lastName,email,message}=data;
+    if(!firstName||!lastName||!email||!message) return {error:'Required fields missing.'};
+    const contacts=DB.contacts();
+    const c={...data,id:genId(),status:'new',createdAt:new Date().toISOString()};
+    contacts.push(c);
+    DB.saveContacts(contacts);
+    return {success:true,id:c.id};
+  },
+  updateStatus(id,status){
+    const contacts=DB.contacts();
+    const c=contacts.find(x=>x.id===id);
+    if(c) c.status=status;
+    DB.saveContacts(contacts);
+    return {success:true};
+  },
+  delete(id){
+    let contacts=DB.contacts();
+    contacts=contacts.filter(x=>x.id!==id);
+    DB.saveContacts(contacts);
+    return {success:true};
+  }
+};
+
+/* ═══════════════════════════════════════════════
+   UI STATE
+═══════════════════════════════════════════════ */
+let currentSession = Auth.me();
+
+/* ── Cursor ── */
+const cur=document.getElementById('cur');
+const curR=document.getElementById('cur-r');
+let mx=0,my=0,rx=0,ry=0;
+document.addEventListener('mousemove',e=>{ mx=e.clientX; my=e.clientY; cur.style.left=mx+'px'; cur.style.top=my+'px'; });
+(function animR(){ rx+=(mx-rx)*.12; ry+=(my-ry)*.12; curR.style.left=rx+'px'; curR.style.top=ry+'px'; requestAnimationFrame(animR); })();
+document.querySelectorAll('a,button,.val-card,.svc-card,.team-card,.why-item').forEach(el=>{
+  el.addEventListener('mouseenter',()=>{ cur.style.width='18px'; cur.style.height='18px'; curR.style.width='50px'; curR.style.height='50px'; });
+  el.addEventListener('mouseleave',()=>{ cur.style.width='10px'; cur.style.height='10px'; curR.style.width='34px'; curR.style.height='34px'; });
+});
+
+/* ── Loader ── */
+window.addEventListener('load',()=>{ setTimeout(()=>document.getElementById('loader').classList.add('out'),1800); });
+
+/* ── Scroll nav ── */
+window.addEventListener('scroll',()=>{ document.getElementById('nav').classList.toggle('scrolled',scrollY>60); });
+
+/* ── Reveal ── */
+const rvObs=new IntersectionObserver((entries)=>{
+  entries.forEach((e,i)=>{ if(e.isIntersecting){ setTimeout(()=>e.target.classList.add('vis'),i*70); } });
+},{threshold:.1});
+document.querySelectorAll('.rv').forEach(el=>rvObs.observe(el));
+
+/* ── Mobile nav ── */
+function toggleMob(){ const n=document.getElementById('mobNav'),h=document.getElementById('hbg'); n.classList.toggle('open'); h.classList.toggle('open'); }
+function closeMob(){ document.getElementById('mobNav').classList.remove('open'); document.getElementById('hbg').classList.remove('open'); }
+
+/* ── Toast ── */
+function toast(msg,type='ok'){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.className='toast '+type+' show';
+  setTimeout(()=>t.classList.remove('show'),4000);
+}
+
+/* ── Counter animations ── */
+function animCount(el,target,suffix=''){
+  let v=0,step=target/55;
+  const iv=setInterval(()=>{ v+=step; if(v>=target){ el.textContent=target+suffix; clearInterval(iv); return; } el.textContent=Math.floor(v)+suffix; },22);
+}
+const statsObs=new IntersectionObserver(entries=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting){
+      e.target.querySelectorAll('[data-target]').forEach(el=>{
+        animCount(el,+el.dataset.target,el.dataset.suffix||'');
+      });
+      statsObs.unobserve(e.target);
+    }
+  });
+},{threshold:.5});
+document.querySelector('.hero-stats')&&statsObs.observe(document.querySelector('.hero-stats'));
+
+/* ── Responsive values grid ── */
+function fixValGrid(){
+  const c=document.querySelector('.val-full');
+  if(!c)return;
+  if(window.innerWidth<=540) c.style.gridColumn='span 1';
+  else if(window.innerWidth<=768) c.style.gridColumn='span 2';
+  else c.style.gridColumn='span 3';
+}
+fixValGrid(); window.addEventListener('resize',fixValGrid);
+
+/* ═══════════════════════════════════════════════
+   AUTH UI
+═══════════════════════════════════════════════ */
+function updateAuthUI(){
+  currentSession=Auth.me();
+  const slot=document.getElementById('authSlot');
+  if(currentSession){
+    const isAdmin=currentSession.role==='admin';
+    slot.innerHTML=`<div class="user-bar">
+      <div class="u-av">${currentSession.firstName[0].toUpperCase()}</div>
+      <span style="color:var(--white)">${currentSession.firstName}</span>
+      ${isAdmin?`<button class="btn-portal" onclick="openDash()">Dashboard</button>`:''}
+      <button class="btn-portal" onclick="handleLogout()">Sign Out</button>
+    </div>`;
+  } else {
+    slot.innerHTML=`<button class="btn-portal" onclick="openModal()">Client Portal</button>`;
+  }
+}
+updateAuthUI();
+
+function openModal(){ document.getElementById('authModal').classList.add('open'); document.body.style.overflow='hidden'; }
+function closeModal(){ document.getElementById('authModal').classList.remove('open'); document.body.style.overflow=''; }
+document.getElementById('authModal').addEventListener('click',function(e){ if(e.target===this) closeModal(); });
+
+function switchTab(tab){
+  document.getElementById('tabLogin').classList.toggle('active',tab==='login');
+  document.getElementById('tabReg').classList.toggle('active',tab==='register');
+  document.getElementById('fLogin').style.display=tab==='login'?'flex':'none';
+  document.getElementById('fReg').style.display=tab==='register'?'flex':'none';
+  document.getElementById('mTitle').textContent=tab==='login'?'Welcome Back':'Create Account';
+  document.getElementById('mSub').textContent=tab==='login'?'Sign in to your MJS Kway Global account':'Join the MJS Kway Global network';
+}
+
+function handleLogin(){
+  const email=document.getElementById('lEmail').value.trim();
+  const password=document.getElementById('lPass').value;
+  const res=Auth.login({email,password});
+  if(res.error){ toast(res.error,'err'); return; }
+  closeModal();
+  updateAuthUI();
+  toast(`Welcome back, ${res.user.firstName}! 👋`,'ok');
+  if(res.user.role==='admin') setTimeout(openDash,600);
+}
+
+function handleRegister(){
+  const res=Auth.register({
+    firstName:document.getElementById('rFirst').value.trim(),
+    lastName:document.getElementById('rLast').value.trim(),
+    email:document.getElementById('rEmail').value.trim(),
+    password:document.getElementById('rPass').value,
+    company:document.getElementById('rCompany').value.trim(),
+    phone:document.getElementById('rPhone').value.trim(),
+  });
+  if(res.error){ toast(res.error,'err'); return; }
+  closeModal();
+  updateAuthUI();
+  toast(`Account created! Welcome, ${res.user.firstName}! 🎉`,'ok');
+}
+
+function handleLogout(){
+  Auth.logout();
+  updateAuthUI();
+  closeDash();
+  toast('Signed out successfully.','ok');
+}
+
+/* Enter key on auth forms */
+document.getElementById('lPass').addEventListener('keydown',e=>{ if(e.key==='Enter') handleLogin(); });
+document.getElementById('rPhone').addEventListener('keydown',e=>{ if(e.key==='Enter') handleRegister(); });
+
+/* ═══════════════════════════════════════════════
+   ADMIN DASHBOARD
+═══════════════════════════════════════════════ */
+let dashTab='users';
+
+function openDash(){
+  const sess=Auth.me();
+  if(!sess||sess.role!=='admin'){ toast('Admin access required.','err'); return; }
+  document.getElementById('dashOv').classList.add('open');
+  document.body.style.overflow='hidden';
+  renderDash();
+}
+function closeDash(){
+  document.getElementById('dashOv').classList.remove('open');
+  document.body.style.overflow='';
+}
+
+function renderDash(){
+  const users=DB.users();
+  const contacts=DB.contacts();
+  document.getElementById('dashStats').innerHTML=`
+    <div class="ds-card"><div class="ds-num">${users.length}</div><div class="ds-label">Total Users</div></div>
+    <div class="ds-card"><div class="ds-num">${users.filter(u=>u.isActive).length}</div><div class="ds-label">Active Users</div></div>
+    <div class="ds-card"><div class="ds-num">${contacts.length}</div><div class="ds-label">Total Inquiries</div></div>
+    <div class="ds-card"><div class="ds-num">${contacts.filter(c=>c.status==='new').length}</div><div class="ds-label">New Inquiries</div></div>
+  `;
+  switchDashTab(dashTab);
+}
+
+function switchDashTab(tab,el){
+  dashTab=tab;
+  document.querySelectorAll('.dash-tab').forEach(t=>t.classList.remove('active'));
+  if(el) el.classList.add('active');
+  else document.querySelectorAll('.dash-tab')[tab==='users'?0:1].classList.add('active');
+  const content=document.getElementById('dashContent');
+  if(tab==='users'){
+    const users=DB.users();
+    if(!users.length){ content.innerHTML='<div class="dash-empty">No users yet.</div>'; return; }
+    content.innerHTML=`<div style="overflow-x:auto"><table class="dash-table">
+      <thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Company</th><th>Status</th><th>Joined</th><th>Actions</th></tr></thead>
+      <tbody>${users.map(u=>`
+        <tr>
+          <td><strong>${u.firstName} ${u.lastName}</strong></td>
+          <td>${u.email}</td>
+          <td><span class="badge ${u.role==='admin'?'badge-gold':'badge-slate'}">${u.role}</span></td>
+          <td>${u.company||'—'}</td>
+          <td><span class="badge ${u.isActive?'badge-green':'badge-red'}">${u.isActive?'Active':'Inactive'}</span></td>
+          <td style="font-size:.75rem">${new Date(u.createdAt).toLocaleDateString()}</td>
+          <td style="display:flex;gap:.4rem;flex-wrap:wrap">
+            ${u.id!=='admin_001'?`<button class="btn-sm" onclick="toggleUser('${u.id}')">${u.isActive?'Deactivate':'Activate'}</button><button class="btn-sm" style="border-color:rgba(255,90,90,.3);color:#ff5a5a" onclick="deleteUser('${u.id}')">Delete</button>`:'<span style="font-size:.72rem;color:var(--slate)">Protected</span>'}
+          </td>
+        </tr>`).join('')}
+      </tbody></table></div>`;
+  } else {
+    const contacts=DB.contacts();
+    if(!contacts.length){ content.innerHTML='<div class="dash-empty">No inquiries yet.</div>'; return; }
+    content.innerHTML=`<div style="overflow-x:auto"><table class="dash-table">
+      <thead><tr><th>Name</th><th>Email</th><th>Service</th><th>Message</th><th>Status</th><th>Date</th><th>Actions</th></tr></thead>
+      <tbody>${[...contacts].reverse().map(c=>`
+        <tr>
+          <td><strong>${c.firstName} ${c.lastName}</strong></td>
+          <td>${c.email}</td>
+          <td><span class="badge badge-gold">${c.service||'General'}</span></td>
+          <td style="max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${c.message}</td>
+          <td><span class="badge ${c.status==='new'?'badge-green':c.status==='replied'?'badge-slate':'badge-red'}">${c.status}</span></td>
+          <td style="font-size:.75rem">${new Date(c.createdAt).toLocaleDateString()}</td>
+          <td style="display:flex;gap:.4rem;flex-wrap:wrap">
+            ${c.status==='new'?`<button class="btn-sm" onclick="markContact('${c.id}','replied')">Mark Replied</button>`:''}
+            <button class="btn-sm" style="border-color:rgba(255,90,90,.3);color:#ff5a5a" onclick="deleteContact('${c.id}')">Delete</button>
+          </td>
+        </tr>`).join('')}
+      </tbody></table></div>`;
+  }
+}
+
+function toggleUser(id){ const r=Auth.toggleUser(id); if(r.error){toast(r.error,'err');return;} toast(`User ${r.user.isActive?'activated':'deactivated'}.`); renderDash(); }
+function deleteUser(id){ if(!confirm('Delete this user?')) return; Auth.deleteUser(id); toast('User deleted.'); renderDash(); }
+function markContact(id,status){ ContactAPI.updateStatus(id,status); toast('Status updated.'); renderDash(); }
+function deleteContact(id){ if(!confirm('Delete this inquiry?')) return; ContactAPI.delete(id); toast('Inquiry deleted.'); renderDash(); }
+
+/* ═══════════════════════════════════════════════
+   CONTACT FORM
+═══════════════════════════════════════════════ */
+function submitContact(){
+  const btn=document.getElementById('cf-btn');
+  const res_el=document.getElementById('cf-res');
+  const data={
+    firstName:document.getElementById('cf-first').value.trim(),
+    lastName:document.getElementById('cf-last').value.trim(),
+    email:document.getElementById('cf-email').value.trim(),
+    phone:document.getElementById('cf-phone').value.trim(),
+    service:document.getElementById('cf-service').value,
+    message:document.getElementById('cf-msg').value.trim(),
+  };
+  if(!data.firstName||!data.lastName||!data.email||!data.message){
+    res_el.className='f-msg err'; res_el.textContent='Please fill in all required fields.'; return;
+  }
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email)){
+    res_el.className='f-msg err'; res_el.textContent='Please enter a valid email address.'; return;
+  }
+  btn.textContent='Sending…'; btn.disabled=true;
+  setTimeout(()=>{
+    const r=ContactAPI.submit(data);
+    if(r.error){ res_el.className='f-msg err'; res_el.textContent=r.error; btn.textContent='Send Message'; btn.disabled=false; return; }
+    res_el.className='f-msg ok';
+    res_el.textContent=`✓ Message received! We'll get back to you at ${data.email} within 24 hours.`;
+    btn.textContent='Send Message'; btn.disabled=false;
+    ['cf-first','cf-last','cf-email','cf-phone','cf-msg'].forEach(id=>document.getElementById(id).value='');
+    document.getElementById('cf-service').value='';
+    toast('Message sent successfully! ✉️','ok');
+  },1200);
+}
+
+/* ═══════════════════════════════════════════════
+   THREE.JS — HERO GLOBE
+═══════════════════════════════════════════════ */
+(function(){
+  const canvas=document.getElementById('hero-canvas');
+  if(!canvas||typeof THREE==='undefined') return;
+  const renderer=new THREE.WebGLRenderer({canvas,alpha:true,antialias:true});
+  renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+  renderer.setSize(innerWidth,innerHeight);
+  const scene=new THREE.Scene();
+  const camera=new THREE.PerspectiveCamera(58,innerWidth/innerHeight,.1,100);
+  camera.position.set(0,0,4.8);
+
+  // Globe wireframe
+  const wireGeo=new THREE.EdgesGeometry(new THREE.SphereGeometry(1.9,22,22));
+  const wire=new THREE.LineSegments(wireGeo,new THREE.LineBasicMaterial({color:0xc9a96e,transparent:true,opacity:.1}));
+  scene.add(wire);
+
+  // Globe surface
+  const surf=new THREE.Mesh(new THREE.SphereGeometry(1.88,36,36),new THREE.MeshBasicMaterial({color:0x0c1d34,transparent:true,opacity:.55}));
+  scene.add(surf);
+
+  // Fibonacci dots (city lights)
+  const dotPos=[];
+  for(let i=0;i<280;i++){
+    const phi=Math.acos(-1+(2*i)/280);
+    const theta=Math.sqrt(280*Math.PI)*phi;
+    dotPos.push(1.91*Math.cos(theta)*Math.sin(phi),1.91*Math.sin(theta)*Math.sin(phi),1.91*Math.cos(phi));
+  }
+  const dotGeo=new THREE.BufferGeometry();
+  dotGeo.setAttribute('position',new THREE.Float32BufferAttribute(dotPos,3));
+  scene.add(new THREE.Points(dotGeo,new THREE.PointsMaterial({color:0xc9a96e,size:.028,transparent:true,opacity:.85})));
+
+  // Orbit rings
+  [[2.3,0.008,Math.PI/3,.001],[2.7,.005,-Math.PI/5.5,-.0007],[3.1,.004,Math.PI/7,.0005]].forEach(([r,t,rx,speed])=>{
+    const mesh=new THREE.Mesh(new THREE.TorusGeometry(r,t,8,120),new THREE.MeshBasicMaterial({color:0xc9a96e,transparent:true,opacity:.22}));
+    mesh.rotation.x=rx; mesh.userData.speed=speed; scene.add(mesh);
+  });
+
+  // Stars
+  const sp=[];
+  for(let i=0;i<2000;i++) sp.push((Math.random()-.5)*50,(Math.random()-.5)*50,(Math.random()-.5)*50);
+  const sg=new THREE.BufferGeometry(); sg.setAttribute('position',new THREE.Float32BufferAttribute(sp,3));
+  scene.add(new THREE.Points(sg,new THREE.PointsMaterial({color:0xffffff,size:.013,transparent:true,opacity:.45})));
+
+  // Lat/lon grid lines
+  for(let i=0;i<8;i++){
+    const lat=(i/8)*Math.PI*2;
+    const pts=[];
+    for(let j=0;j<=64;j++) pts.push(new THREE.Vector3(1.92*Math.cos(j/64*Math.PI*2)*Math.sin(lat),1.92*Math.cos(lat),1.92*Math.sin(j/64*Math.PI*2)*Math.sin(lat)));
+    scene.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts),new THREE.LineBasicMaterial({color:0x163166,transparent:true,opacity:.4})));
+  }
+  for(let i=0;i<12;i++){
+    const lon=(i/12)*Math.PI*2;
+    const pts=[];
+    for(let j=0;j<=32;j++) pts.push(new THREE.Vector3(1.92*Math.cos(lon)*Math.sin(j/32*Math.PI),1.92*Math.cos(j/32*Math.PI),1.92*Math.sin(lon)*Math.sin(j/32*Math.PI)));
+    scene.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts),new THREE.LineBasicMaterial({color:0x163166,transparent:true,opacity:.35})));
+  }
+
+  // Atmosphere glow
+  const atm=new THREE.Mesh(new THREE.SphereGeometry(2.05,32,32),new THREE.MeshBasicMaterial({color:0x0a1e3d,transparent:true,opacity:.18,side:THREE.BackSide}));
+  scene.add(atm);
+
+  let mX=0,mY=0;
+  document.addEventListener('mousemove',e=>{mX=(e.clientX/innerWidth-.5)*2;mY=(e.clientY/innerHeight-.5)*2;});
+  const group=new THREE.Group(); scene.add(group);
+  scene.children.filter(c=>c!==group).forEach(c=>group.add(c));
+
+  function animate(){
+    requestAnimationFrame(animate);
+    group.rotation.y+=.0018;
+    group.rotation.x+=.0003;
+    camera.position.x+=(mX*.75-camera.position.x)*.025;
+    camera.position.y+=(-mY*.45-camera.position.y)*.025;
+    camera.lookAt(0,0,0);
+    scene.children.forEach(c=>{ if(c.userData.speed) c.rotation.z+=c.userData.speed; });
+    renderer.render(scene,camera);
+  }
+  animate();
+  window.addEventListener('resize',()=>{ camera.aspect=innerWidth/innerHeight; camera.updateProjectionMatrix(); renderer.setSize(innerWidth,innerHeight); });
+})();
+
+/* ═══════════════════════════════════════════════
+   THREE.JS — ABOUT HELIX
+═══════════════════════════════════════════════ */
+(function(){
+  const canvas=document.getElementById('about-canvas');
+  if(!canvas||typeof THREE==='undefined') return;
+  const W=canvas.parentElement.offsetWidth||500,H=480;
+  const renderer=new THREE.WebGLRenderer({canvas,alpha:true,antialias:true});
+  renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+  renderer.setSize(W,H);
+  const scene=new THREE.Scene();
+  const camera=new THREE.PerspectiveCamera(62,W/H,.1,100);
+  camera.position.set(0,0,5.5);
+  const group=new THREE.Group(); scene.add(group);
+
+  const colors=[0xc9a96e,0x163166,0x7e98b8];
+  for(let i=0;i<90;i++){
+    const t=(i/90)*Math.PI*7-Math.PI*3.5;
+    const r=1.2;
+    [[r,0],[- r,Math.PI]].forEach(([rad,off],si)=>{
+      const x=rad*Math.cos(t+off),y=t*.35,z=r*Math.sin(t+off);
+      const geo=new THREE.SphereGeometry(i%7===0?.07:.04,6,6);
+      const m=new THREE.Mesh(geo,new THREE.MeshBasicMaterial({color:colors[si*2]||colors[0]}));
+      m.position.set(x,y,z); group.add(m);
+    });
+    if(i%6===0){
+      const x1=1.2*Math.cos(t),y=t*.35,z1=1.2*Math.sin(t);
+      const x2=-1.2*Math.cos(t),z2=-1.2*Math.sin(t);
+      const pts=[new THREE.Vector3(x1,y,z1),new THREE.Vector3(x2,y,z2)];
+      group.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts),new THREE.LineBasicMaterial({color:0xc9a96e,transparent:true,opacity:.25})));
+    }
+  }
+  // Backbone tubes
+  [[1.2,0],[- 1.2,Math.PI]].forEach(([r,off])=>{
+    const pts=[];
+    for(let i=0;i<=80;i++){ const t=(i/80)*Math.PI*7-Math.PI*3.5; pts.push(new THREE.Vector3(r*Math.cos(t+off),t*.35,r*Math.sin(t+off))); }
+    group.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts),new THREE.LineBasicMaterial({color:0x7e98b8,transparent:true,opacity:.3})));
+  });
+
+  function animate(){ requestAnimationFrame(animate); group.rotation.y+=.006; renderer.render(scene,camera); }
+  animate();
+})();
+
+/* ═══════════════════════════════════════════════
+   THREE.JS — WHY CANVAS (Network graph)
+═══════════════════════════════════════════════ */
+(function(){
+  const canvas=document.getElementById('why-canvas');
+  if(!canvas||typeof THREE==='undefined') return;
+  const W=canvas.parentElement.offsetWidth||520,H=460;
+  const renderer=new THREE.WebGLRenderer({canvas,alpha:true,antialias:true});
+  renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+  renderer.setSize(W,H);
+  const scene=new THREE.Scene();
+  const camera=new THREE.PerspectiveCamera(62,W/H,.1,100);
+  camera.position.set(0,0,7);
+
+  const nodes=[];
+  for(let i=0;i<35;i++){
+    const geo=new THREE.SphereGeometry(Math.random()*.1+.04,7,7);
+    const mat=new THREE.MeshBasicMaterial({color:i%4===0?0xc9a96e:i%3===0?0x163166:0x1a3a6e,transparent:true,opacity:.85});
+    const m=new THREE.Mesh(geo,mat);
+    m.position.set((Math.random()-.5)*7,(Math.random()-.5)*5,(Math.random()-.5)*3);
+    const vx=(Math.random()-.5)*.012,vy=(Math.random()-.5)*.012;
+    nodes.push({m,vx,vy}); scene.add(m);
+  }
+  nodes.forEach((a,i)=>nodes.forEach((b,j)=>{
+    if(j<=i) return;
+    if(a.m.position.distanceTo(b.m.position)<3){
+      const pts=[a.m.position.clone(),b.m.position.clone()];
+      scene.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts),new THREE.LineBasicMaterial({color:0xc9a96e,transparent:true,opacity:.09})));
+    }
+  }));
+
+  function animate(){
+    requestAnimationFrame(animate);
+    nodes.forEach(n=>{ n.m.position.x+=n.vx; n.m.position.y+=n.vy; if(Math.abs(n.m.position.x)>3.5) n.vx*=-1; if(Math.abs(n.m.position.y)>2.5) n.vy*=-1; });
+    renderer.render(scene,camera);
+  }
+  animate();
+})();
+
+/* ═══════════════════════════════════════════════
+   THREE.JS — MAP CANVAS
+═══════════════════════════════════════════════ */
+(function(){
+  const canvas=document.getElementById('map-canvas');
+  if(!canvas||typeof THREE==='undefined') return;
+  const W=canvas.parentElement.offsetWidth||900,H=540;
+  const renderer=new THREE.WebGLRenderer({canvas,alpha:true,antialias:true});
+  renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+  renderer.setSize(W,H);
+  const scene=new THREE.Scene();
+  const camera=new THREE.OrthographicCamera(-W/190,W/190,H/190,-H/190,.1,100);
+  camera.position.z=5;
+
+  const smallDot=new THREE.SphereGeometry(.026,4,4);
+  const blobs=[
+    [-9.5,-1,-0.5,2.5,.32],[-3.5,4.2,-3,0.4,.28],[0.5,8.5,-0.4,3.8,.34],
+    [-9.5,-2,1.5,3.5,.22],[-6,-1.5,-2.8,1.5,.2],[6.2,9.8,-3,-.5,.2],
+  ];
+  const allDots=[];
+  blobs.forEach(([x0,x1,y0,y1,d])=>{
+    for(let x=x0;x<x1;x+=.28){ for(let y=y0;y<y1;y+=.28){
+      if(Math.random()<d){
+        const m=new THREE.Mesh(smallDot,new THREE.MeshBasicMaterial({color:Math.random()<.1?0xc9a96e:0x1a3a6e,transparent:true,opacity:Math.random()*.5+.3}));
+        m.position.set(x+(Math.random()-.5)*.2,y+(Math.random()-.5)*.2,0);
+        scene.add(m); allDots.push(m);
+      }
+    }}
+  });
+
+  // Hotspot cities with pulse rings
+  const cities=[[2.5,1.6],[3.2,.6],[-.4,1.6],[-3.5,2.6],[7.8,-1.1],[-5.8,-1.2],[1,.4],[5,2]];
+  cities.forEach(([cx,cy])=>{
+    const city=new THREE.Mesh(new THREE.SphereGeometry(.065,8,8),new THREE.MeshBasicMaterial({color:0xc9a96e}));
+    city.position.set(cx,cy,.1); scene.add(city);
+    const ring=new THREE.Mesh(new THREE.TorusGeometry(.14,.01,6,40),new THREE.MeshBasicMaterial({color:0xc9a96e,transparent:true,opacity:.35}));
+    ring.position.set(cx,cy,.1); scene.add(ring); ring.userData.pulse=true;
+    cities.forEach(([cx2,cy2])=>{
+      if(cx2!==cx||cy2!==cy){
+        const pts=[new THREE.Vector3(cx,cy,.05),new THREE.Vector3(cx2,cy2,.05)];
+        scene.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts),new THREE.LineBasicMaterial({color:0xc9a96e,transparent:true,opacity:.07})));
+      }
+    });
+  });
+
+  let t=0;
+  function animate(){
+    requestAnimationFrame(animate); t+=.015;
+    allDots.forEach((d,i)=>{ d.material.opacity=.28+Math.sin(t+i*.28)*.2; });
+    scene.children.forEach(c=>{ if(c.userData.pulse){ c.scale.set(1+Math.sin(t)*0.25,1+Math.sin(t)*0.25,1); c.material.opacity=.35+Math.sin(t)*.2; } });
+    renderer.render(scene,camera);
+  }
+  animate();
+  window.addEventListener('resize',()=>{ const nW=canvas.parentElement.offsetWidth; camera.left=-nW/190; camera.right=nW/190; camera.updateProjectionMatrix(); renderer.setSize(nW,H); });
+})();
+
+/* ═══════════════════════════════════════════════
+   THREE.JS — FUTURE PARTICLES
+═══════════════════════════════════════════════ */
+(function(){
+  const canvas=document.getElementById('future-canvas');
+  if(!canvas||typeof THREE==='undefined') return;
+  const renderer=new THREE.WebGLRenderer({canvas,alpha:true,antialias:true});
+  renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+  renderer.setSize(innerWidth,600);
+  const scene=new THREE.Scene();
+  const camera=new THREE.PerspectiveCamera(60,innerWidth/600,.1,100);
+  camera.position.z=6;
+  const geo=new THREE.BufferGeometry();
+  const pos=[],col=[];
+  for(let i=0;i<2500;i++){
+    pos.push((Math.random()-.5)*22,(Math.random()-.5)*16,(Math.random()-.5)*12);
+    const g=Math.random(); col.push(.79*g,.66*g,.43*g);
+  }
+  geo.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));
+  geo.setAttribute('color',new THREE.Float32BufferAttribute(col,3));
+  const pts=new THREE.Points(geo,new THREE.PointsMaterial({size:.038,vertexColors:true,transparent:true,opacity:.55}));
+  scene.add(pts);
+  function animate(){ requestAnimationFrame(animate); pts.rotation.y+=.0003; pts.rotation.x+=.00008; renderer.render(scene,camera); }
+  animate();
+  window.addEventListener('resize',()=>{ camera.aspect=innerWidth/600; camera.updateProjectionMatrix(); renderer.setSize(innerWidth,600); });
+})();
+</script>
+</body>
+</html>

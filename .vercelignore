@@ -1,0 +1,9 @@
+node_modules
+**/node_modules
+.git
+.env
+.env.local
+serviceAccountKey.json
+test_smtp.js
+mjs-kway-global.html
+*.log
