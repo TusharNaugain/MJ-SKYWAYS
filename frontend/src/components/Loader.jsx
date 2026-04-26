@@ -25,7 +25,7 @@ export default function Loader() {
         overflow: 'hidden'
       }}>
         <img
-          src="/images/logo.jpeg"
+          src="/images/logo.jpeg?v=2"
           alt="MJ Skyways"
           style={{ width: '100%', height: '100%', objectFit: 'contain' }}
         />

@@ -139,7 +139,7 @@ export default function LoginPage() {
 
         <div style={{ textAlign: 'center', marginBottom: '2.5rem' }}>
           <div style={{ width: '120px', height: '80px', backgroundColor: '#fff', borderRadius: '14px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginBottom: '1.5rem', boxShadow: '0 10px 20px rgba(0,0,0,0.3)', overflow: 'hidden' }}>
-             <img src="/images/logo.jpeg" alt="MJ Skyways" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+             <img src="/images/logo.jpeg?v=2" alt="MJ Skyways" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
           </div>
           <h2 style={{ color: '#fff', fontFamily: 'var(--ff-display)', fontSize: '2rem', fontWeight: 300, letterSpacing: '-0.02em' }}>
             {mode === 'signin' ? 'Welcome Back' : 'Create Account'}
