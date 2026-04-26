@@ -45,8 +45,11 @@ try {
 
 const app = express();
 const PORT = process.env.PORT || 5002;
-const JWT_SECRET = process.env.JWT_SECRET || 'mjs_kway_global_super_secret_key_2025';
-const JWT_REFRESH_SECRET = process.env.JWT_REFRESH_SECRET || 'mjs_kway_refresh_secret_2025';
+const JWT_SECRET = process.env.JWT_SECRET;
+const JWT_REFRESH_SECRET = process.env.JWT_REFRESH_SECRET;
+if (!JWT_SECRET || !JWT_REFRESH_SECRET) {
+  throw new Error('JWT_SECRET and JWT_REFRESH_SECRET env vars are required.');
+}
 
 // In-memory OTP store
 const otpStore = new Map();
@@ -134,7 +137,12 @@ const createUser = async (data) => {
   try {
     const existing = await findUserByEmail('admin@mjskyways.com');
     if (!existing) {
-      const hashedPassword = await bcrypt.hash('Admin@123', 12);
+      const adminPassword = process.env.DEFAULT_ADMIN_PASSWORD;
+      if (!adminPassword) {
+        console.warn('DEFAULT_ADMIN_PASSWORD not set — skipping admin seed.');
+        return;
+      }
+      const hashedPassword = await bcrypt.hash(adminPassword, 12);
       await createUser({
         firstName: 'Admin',
         lastName: 'User',
