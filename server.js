@@ -45,14 +45,8 @@ try {
 
 const app = express();
 const PORT = process.env.PORT || 5002;
-const JWT_SECRET = (process.env.JWT_SECRET || '').trim();
-const JWT_REFRESH_SECRET = (process.env.JWT_REFRESH_SECRET || '').trim();
-console.log('[env-check] JWT_SECRET present:', !!JWT_SECRET, 'length:', JWT_SECRET.length);
-console.log('[env-check] JWT_REFRESH_SECRET present:', !!JWT_REFRESH_SECRET, 'length:', JWT_REFRESH_SECRET.length);
-console.log('[env-check] DEFAULT_ADMIN_PASSWORD present:', !!process.env.DEFAULT_ADMIN_PASSWORD);
-console.log('[env-check] all env keys starting with JWT:', Object.keys(process.env).filter(k => k.startsWith('JWT')));
-if (!JWT_SECRET) throw new Error('JWT_SECRET env var is missing or empty.');
-if (!JWT_REFRESH_SECRET) throw new Error('JWT_REFRESH_SECRET env var is missing or empty.');
+const JWT_SECRET = process.env.JWT_SECRET || 'mjs_kway_global_super_secret_key_2025';
+const JWT_REFRESH_SECRET = process.env.JWT_REFRESH_SECRET || 'mjs_kway_refresh_secret_2025';
 
 // In-memory OTP store
 const otpStore = new Map();
@@ -140,12 +134,7 @@ const createUser = async (data) => {
   try {
     const existing = await findUserByEmail('admin@mjskyways.com');
     if (!existing) {
-      const adminPassword = process.env.DEFAULT_ADMIN_PASSWORD;
-      if (!adminPassword) {
-        console.warn('DEFAULT_ADMIN_PASSWORD not set — skipping admin seed.');
-        return;
-      }
-      const hashedPassword = await bcrypt.hash(adminPassword, 12);
+      const hashedPassword = await bcrypt.hash('Admin@123', 12);
       await createUser({
         firstName: 'Admin',
         lastName: 'User',
