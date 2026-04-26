@@ -51,7 +51,7 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess, showToast }
         <button className="modal-x" onClick={onClose}>✕</button>
         <h2>{tab === 'login' ? 'Welcome Back' : 'Create Account'}</h2>
         <p style={{color: 'var(--slate)', fontSize: '.85rem', marginBottom: '1.8rem'}}>
-          {tab === 'login' ? 'Sign in to your M Jayalakshmi Skyway account' : 'Join the M Jayalakshmi Skyway network'}
+          {tab === 'login' ? 'Sign in to your MJ Skyways account' : 'Join the MJ Skyways network'}
         </p>
         
         <div className="m-tabs">

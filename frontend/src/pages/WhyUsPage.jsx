@@ -15,7 +15,7 @@ export default function WhyUsPage() {
     {
       tag: 'LOGISTICS',
       title: 'Global Freight & Supply Chain',
-      description: 'M Jayalakshmi Skyway has entirely leveled up our supply chain strategy. Their team is accessible 24/7 and solves complex logistical problems before they impact operations.',
+      description: 'MJ Skyways has entirely leveled up our supply chain strategy. Their team is accessible 24/7 and solves complex logistical problems before they impact operations.',
       action: 'READ CASE STUDY',
       image: '/images/services/svc_logistics_1774798798720.png'
     },
@@ -44,9 +44,9 @@ export default function WhyUsPage() {
       >
         <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to bottom, rgba(7,17,31,0.6), var(--navy))', zIndex: 1 }}></div>
         <div className="container" style={{ position: 'relative', zIndex: 2 }}>
-          <p className="s-label rv vis" style={{ animation: 'fuv 0.8s 0.2s forwards', opacity: 0 }}>The M Jayalakshmi Skyway Difference</p>
+          <p className="s-label rv vis" style={{ animation: 'fuv 0.8s 0.2s forwards', opacity: 0 }}>The MJ Skyways Difference</p>
           <h1 className="hero-h" style={{ fontSize: 'clamp(3rem, 6vw, 5rem)', marginBottom: '1.2rem', animation: 'fuv 0.9s 0.4s forwards', opacity: 0 }}>
-            Why Choose <em>M Jayalakshmi Skyway</em>
+            Why Choose <em>MJ Skyways</em>
           </h1>
           <p className="hero-sub rv vis" style={{ animation: 'fuv 1s 0.6s forwards', opacity: 0, margin: '0 auto' }}>
             A proven track record of delivering speed, reliability, and innovation across global markets. 

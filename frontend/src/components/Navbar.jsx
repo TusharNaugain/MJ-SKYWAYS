@@ -42,8 +42,8 @@ export default function Navbar({ onOpenModal }) {
              <img src="/images/logo.jpeg" alt="MJ Skyways" style={{ width: '100%', height: '100%', objectFit: 'contain', padding: '4px' }} onError={(e) => { e.target.style.display='none'; e.target.parentNode.innerHTML = '<span style="color:#0a1128;font-weight:900;font-size:14px;letter-spacing:-1px;">MJS</span>'; }}/>
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', whiteSpace: 'nowrap' }}>
-            <span style={{ color: '#fff', fontSize: '1.25rem', lineHeight: 1.1, fontFamily: 'var(--ff-display)' }}><strong>M JAYALAKSHMI</strong></span>
-            <span style={{ color: '#94a3b8', fontSize: '0.7rem', fontWeight: 500, fontFamily: 'var(--ff-body)', letterSpacing: '0.05em', marginTop: '2px', textTransform: 'uppercase' }}>Skyway Private Limited</span>
+            <span style={{ color: '#fff', fontSize: '1.35rem', lineHeight: 1.1, fontFamily: 'var(--ff-display)' }}><strong>MJ SKYWAYS</strong></span>
+            <span style={{ color: '#94a3b8', fontSize: '0.75rem', fontWeight: 500, fontFamily: 'var(--ff-body)', letterSpacing: '0.1em', marginTop: '2px', textTransform: 'uppercase' }}>Global Private Limited</span>
           </div>
         </Link>
         <ul className="nav-links">

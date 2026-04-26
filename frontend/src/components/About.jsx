@@ -14,7 +14,7 @@ export default function About() {
               />
             </div>
             <div>
-              <p className="s-label rv">About M Jayalakshmi Skyway</p>
+              <p className="s-label rv">About MJ Skyways</p>
               <h2 className="s-title rv"><strong>Built on Trust.</strong><br/>Driven by Innovation.</h2>
               <div className="divider rv"></div>
               <div className="vm-cards">
