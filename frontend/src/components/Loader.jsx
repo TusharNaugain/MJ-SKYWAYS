@@ -13,20 +13,21 @@ export default function Loader() {
   return (
     <div id="loader" className={!loading ? 'out' : ''}>
       <div style={{
-        width: '110px',
-        height: '110px',
+        width: '180px',
+        height: '120px',
         backgroundColor: '#fff',
         borderRadius: '20px',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
         boxShadow: '0 20px 60px rgba(201,169,110,0.25)',
-        marginBottom: '0.4rem'
+        marginBottom: '0.4rem',
+        overflow: 'hidden'
       }}>
         <img
           src="/images/logo.jpeg"
           alt="MJ Skyways"
-          style={{ width: '92%', height: '92%', objectFit: 'contain' }}
+          style={{ width: '100%', height: '100%', objectFit: 'contain' }}
         />
       </div>
       <div className="ld-logo">MJ <span>Skyways</span></div>

@@ -138,8 +138,8 @@ export default function LoginPage() {
       <div className="rv" style={{ position: 'relative', zIndex: 10, background: 'rgba(11, 22, 44, 0.7)', backdropFilter: 'blur(30px)', padding: '3rem', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.08)', width: '100%', maxWidth: '460px', boxShadow: '0 40px 100px -20px rgba(0, 0, 0, 0.8)' }}>
 
         <div style={{ textAlign: 'center', marginBottom: '2.5rem' }}>
-          <div style={{ width: '64px', height: '64px', backgroundColor: '#fff', borderRadius: '14px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginBottom: '1.5rem', boxShadow: '0 10px 20px rgba(0,0,0,0.3)' }}>
-             <img src="/images/logo.jpeg" alt="MJ Skyways" style={{ width: '100%', height: '100%', objectFit: 'contain', padding: '5px' }} />
+          <div style={{ width: '120px', height: '80px', backgroundColor: '#fff', borderRadius: '14px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginBottom: '1.5rem', boxShadow: '0 10px 20px rgba(0,0,0,0.3)', overflow: 'hidden' }}>
+             <img src="/images/logo.jpeg" alt="MJ Skyways" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
           </div>
           <h2 style={{ color: '#fff', fontFamily: 'var(--ff-display)', fontSize: '2rem', fontWeight: 300, letterSpacing: '-0.02em' }}>
             {mode === 'signin' ? 'Welcome Back' : 'Create Account'}
