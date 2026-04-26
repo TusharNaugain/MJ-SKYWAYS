@@ -44,7 +44,7 @@ export default function Hero() {
       <div className="hero-c" style={{ position: 'relative', zIndex: 2 }}>
         <p className="hero-eyebrow">Global · Reliable · Innovative</p>
         <h1 className="hero-h">Connecting <em>Worlds</em><br/>Through Excellence</h1>
-        <p className="hero-sub">MJ Skyways delivers end-to-end solutions across logistics, aviation, hospitality and international trade — bridging continents with precision and trust.</p>
+        <p className="hero-sub">M Jayalakshmi Skyway delivers end-to-end solutions across logistics, aviation, hospitality and international trade — bridging continents with precision and trust.</p>
         <div className="hero-btns">
           <a href="#services" className="btn-p">Explore Services</a>
           <a href="#contact" className="btn-o">Get in Touch</a>

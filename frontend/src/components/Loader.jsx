@@ -25,11 +25,11 @@ export default function Loader() {
       }}>
         <img
           src="/images/logo.jpeg"
-          alt="MJ Skyways"
+          alt="M Jayalakshmi Skyway"
           style={{ width: '92%', height: '92%', objectFit: 'contain' }}
         />
       </div>
-      <div className="ld-logo">MJ <span>Skyways</span></div>
+      <div className="ld-logo" style={{ fontSize: '1.2rem' }}>M Jayalakshmi <span>Skyway</span></div>
       <div className="ld-bar"><div className="ld-fill"></div></div>
       <div className="ld-text">Initializing Systems…</div>
     </div>

@@ -2,7 +2,7 @@ export default function WhyUs() {
   return (
     <section id="why">
       <div className="container" style={{ maxWidth: '900px', margin: '0 auto', textAlign: 'center' }}>
-        <p className="s-label rv">Why MJ Skyways</p>
+        <p className="s-label rv">Why M Jayalakshmi Skyway</p>
         <h2 className="s-title rv">The <strong>Difference</strong><br/>is in the Detail</h2>
         <div className="divider rv" style={{ margin: '0 auto 3.5rem' }}></div>
         
