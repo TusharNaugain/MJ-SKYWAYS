@@ -29,14 +29,19 @@ try {
   console.error('Failed to initialize Firebase Admin:', e.message);
 }
 
-const db = admin.firestore();
-// The Firebase project's database has the literal id "default" (not "(default)").
-// Pin the Admin SDK to it before any reads/writes.
-db.settings({ databaseId: process.env.FIRESTORE_DB_ID || 'default' });
-const usersCol = db.collection('users');
-const contactsCol = db.collection('contactSubmissions');
-const refreshTokensCol = db.collection('refreshTokens');
-const otpVerificationsCol = db.collection('otpVerifications');
+let db, usersCol, contactsCol, refreshTokensCol, otpVerificationsCol;
+try {
+  db = admin.firestore();
+  // The Firebase project's database has the literal id "default" (not "(default)").
+  // Pin the Admin SDK to it before any reads/writes.
+  db.settings({ databaseId: process.env.FIRESTORE_DB_ID || 'default' });
+  usersCol = db.collection('users');
+  contactsCol = db.collection('contactSubmissions');
+  refreshTokensCol = db.collection('refreshTokens');
+  otpVerificationsCol = db.collection('otpVerifications');
+} catch (e) {
+  console.error('Failed to initialize Firestore collections:', e.message);
+}
 
 const app = express();
 const PORT = process.env.PORT || 5002;
