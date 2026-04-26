@@ -17,7 +17,7 @@ export default function Footer() {
           </div>
           <div className="ft-col"><h4>Services</h4><ul><li><a href="#services">Logistics</a></li><li><a href="#services">Aviation Support</a></li><li><a href="#services">Hospitality</a></li><li><a href="#services">PSU Services</a></li><li><a href="#services">International Trade</a></li></ul></div>
           <div className="ft-col"><h4>Company</h4><ul><li><a href="#about">About Us</a></li><li><a href="#values">Core Values</a></li><li><a href="#leadership">Leadership</a></li><li><a href="#network">Global Network</a></li><li><a href="#future">Future Goals</a></li></ul></div>
-          <div className="ft-col"><h4>Contact</h4><ul><li><a href="mailto:info@mjskyways.com">info@mjskyways.com</a></li><li><a href="tel:+919870311988">+91 9870311988</a></li><li><a href="#contact">Send a Message</a></li></ul></div>
+          <div className="ft-col"><h4>Contact</h4><ul><li><a href="mailto:info@mjskyways.com">info@mjskyways.com</a></li><li><a href="#contact">Send a Message</a></li></ul></div>
         </div>
         <div className="ft-bottom">
           <p>© 2025 MJ SKYWAYS GLOBAL PRIVATE LIMITED. All rights reserved.</p>
