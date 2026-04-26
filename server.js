@@ -45,11 +45,14 @@ try {
 
 const app = express();
 const PORT = process.env.PORT || 5002;
-const JWT_SECRET = process.env.JWT_SECRET;
-const JWT_REFRESH_SECRET = process.env.JWT_REFRESH_SECRET;
-if (!JWT_SECRET || !JWT_REFRESH_SECRET) {
-  throw new Error('JWT_SECRET and JWT_REFRESH_SECRET env vars are required.');
-}
+const JWT_SECRET = (process.env.JWT_SECRET || '').trim();
+const JWT_REFRESH_SECRET = (process.env.JWT_REFRESH_SECRET || '').trim();
+console.log('[env-check] JWT_SECRET present:', !!JWT_SECRET, 'length:', JWT_SECRET.length);
+console.log('[env-check] JWT_REFRESH_SECRET present:', !!JWT_REFRESH_SECRET, 'length:', JWT_REFRESH_SECRET.length);
+console.log('[env-check] DEFAULT_ADMIN_PASSWORD present:', !!process.env.DEFAULT_ADMIN_PASSWORD);
+console.log('[env-check] all env keys starting with JWT:', Object.keys(process.env).filter(k => k.startsWith('JWT')));
+if (!JWT_SECRET) throw new Error('JWT_SECRET env var is missing or empty.');
+if (!JWT_REFRESH_SECRET) throw new Error('JWT_REFRESH_SECRET env var is missing or empty.');
 
 // In-memory OTP store
 const otpStore = new Map();
