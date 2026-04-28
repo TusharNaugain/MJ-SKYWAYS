@@ -67,7 +67,7 @@ export default function Contact({ showToast }) {
         <div className="contact-g">
           <div className="contact-info">
             <div className="ci rv"><div className="ci-icon">📧</div><div><h4>Email</h4><p>info@mjskyways.com</p></div></div>
-            <div className="ci rv"><div className="ci-icon">📞</div><div><h4>Phone</h4><p><a href="tel:+919844247595" style={{color: 'inherit', textDecoration: 'none'}}>+91 98442 47595</a></p></div></div>
+            <div className="ci rv"><div className="ci-icon">📞</div><div><h4>Phone</h4><p><a href="tel:+919289080349" style={{color: 'inherit', textDecoration: 'none'}}>+91 92890 80349</a></p></div></div>
             <div className="ci rv"><div className="ci-icon">🏢</div><div><h4>Headquarters</h4><p>India — Serving Global Markets<br/>Available 24/7 for international clients</p></div></div>
             <div className="ci rv"><div className="ci-icon">🕐</div><div><h4>Business Hours</h4><p>Mon – Sat: 9:00 AM – 7:00 PM IST<br/>Emergency line available 24/7</p></div></div>
           </div>
