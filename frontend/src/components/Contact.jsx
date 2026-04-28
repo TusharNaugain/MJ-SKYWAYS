@@ -28,7 +28,7 @@ export default function Contact({ showToast }) {
     setLoading(true);
     setResMsg(null);
     try {
-      await addDoc(collection(db, 'contactSubmissions'), {
+      const writePromise = addDoc(collection(db, 'contactSubmissions'), {
         firstName: formData.firstName.trim(),
         lastName: formData.lastName.trim(),
         email: formData.email.trim().toLowerCase(),
@@ -39,11 +39,16 @@ export default function Contact({ showToast }) {
         createdAt: serverTimestamp(),
       });
 
-      try {
-        await api.post('/contact', formData);
-      } catch (apiErr) {
+      const timeout = new Promise((_, reject) =>
+        setTimeout(() => reject(new Error('Firestore write timed out after 15s')), 15000)
+      );
+
+      await Promise.race([writePromise, timeout]);
+
+      // Fire-and-forget backend email dispatch — never block the UI on it
+      api.post('/contact', formData).catch((apiErr) => {
         console.warn('Backend email dispatch failed (Firestore record saved):', apiErr?.message);
-      }
+      });
 
       setResType('ok');
       setResMsg(`✓ Message received! We'll get back to you at ${formData.email} within 24 hours.`);
@@ -52,7 +57,8 @@ export default function Contact({ showToast }) {
     } catch (err) {
       console.error('Contact submit error:', err);
       setResType('err');
-      setResMsg('Something went wrong. Please try again.');
+      setResMsg(`Something went wrong: ${err?.message || 'please try again.'}`);
+      showToast('Failed to send message. Please try again.', 'err');
     } finally {
       setLoading(false);
     }
